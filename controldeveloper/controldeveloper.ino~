@@ -76,9 +76,7 @@ void setup()
     pinMode(motorRight_IN2, OUTPUT);
     
     //Encoders PINS are set as INPUTS
-	pinMode(encoderLeftPin, INPUT);
-	pinMode(encoderRightPin, INPUT);
-	
+
     //Make sure motors are stopped
 	digitalWrite(motorLeft_IN2, LOW);
 	digitalWrite(motorRight_IN2, LOW);
@@ -112,20 +110,20 @@ void loop()
 	utils::writePeriodicData("Command(s) executed...", 5000);
 	//*/
 
-//	if (Serial.available() > 0)
-//	{
-//		speed = Serial.parseInt();
-//	}
-//
-//	digitalWrite(motorLeft_IN2, HIGH);
-//	digitalWrite(motorRight_IN2, HIGH);
+	if (Serial.available() > 0)
+	{
+		speed = Serial.parseInt();
+	}
 
-	updateEncoders();
+	digitalWrite(motorLeft_IN2, HIGH);
+	digitalWrite(motorRight_IN2, HIGH);
+
+
 
 	//dacWrite(motorLeft_IN1, speed);
 	//dacWrite(motorRight_IN1, speed);
 
-	utils::printPeriodicData(to_string(leftSteps) + "\t" + to_string(rightSteps), 50);
+	utils::printPeriodicData("Curr speed: " + to_string(speed), 1000);
 	//*/
 }
 
