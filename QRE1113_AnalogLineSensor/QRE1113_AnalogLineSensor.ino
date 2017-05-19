@@ -22,6 +22,12 @@ void setup()
 
 void loop()
 {
+	//Print only when value is changed
+	static int lastLeftSteps = 0;
+	static int lastRightSteps = 0;
+	lastLeftSteps = leftSteps;
+	lastRightSteps = rightSteps;
+
 	lastLeftVal  = leftVal;
 	lastRightVal = rightVal;
 
@@ -48,8 +54,14 @@ void loop()
 	if(lastRightVal != rightVal)
 		rightSteps += rightVal;
 
-	printPeriodicData("Steps:   " + to_string(leftSteps) + "\t" + to_string(rightSteps), 10);/*
-	printPeriodicData("Steps:   " + to_string(leftVal) + "\t" + to_string(rightVal), 100);//*/
+	if(leftSteps != lastLeftSteps || rightSteps != lastRightSteps)
+	{
+		Serial.println("Steps:   " + to_string(leftSteps) + "\t" + to_string(rightSteps));
+	}
+
+
+	//printPeriodicData("Steps:   " + to_string(leftSteps) + "\t" + to_string(rightSteps), 10);/*
+	//printPeriodicData("Steps:   " + to_string(leftVal) + "\t" + to_string(rightVal), 100);//*/
 }
 
 void printPeriodicData(String data, int interval = 1000)
