@@ -1,22 +1,25 @@
 #include "Arduino.h"
 
-#include <esp32-hal-dac.h>
+#include <esp32-hal-ledc.h>
 #include "my_util.h"
 
-int dac1Pin = 25;
-int dac2Pin = 26;
+int pwm1 = 25;
+int pwm2 = 26;
 
 int analogInputPin = 36;
+
+int pwmLed = 5;
 
 void setup()
 {
 	Serial.begin(115200);
-	pinMode(dac1Pin, OUTPUT);
-	pinMode(dac2Pin, OUTPUT);
+	pinMode(pwm1, OUTPUT);
+	pinMode(pwm2, OUTPUT);
+	pinMode(pwmLed, OUTPUT);
 	pinMode(analogInputPin, INPUT);
 }
 
-int writtenVal = 0;
+int writtenVal = 100;
 int readedVal = 0;
 
 void loop()
@@ -26,14 +29,34 @@ void loop()
 		writtenVal = to_int(Serial.readString());
 	}
 
-	dacWrite(25, writtenVal);//pin, 8bit value
-	dacWrite(26, writtenVal);//pin, 8bit value
-	delay(1);
+
+
 
 	//We want to make sure about value we write, so we read the value using another port
-	readedVal = analogRead(analogInputPin);
-	delay(1);
+	//readedVal = map(analogRead(analogInputPin), 0, 4095, 0, 255);
 
 	//Print data for debugging
 	printPeriodicData("Current speed: " + to_string(writtenVal) + "\t Readed val: " + readedVal, 1000);
+}
+
+void updateMotor(int speed)
+{
+	static int interval = 15;
+	static int last = 1;
+
+	static long previousMillis = 0;
+	if (millis() - previousMillis > interval)
+	{
+		previousMillis = millis();
+		if(last == 0)
+		{
+			digitalWrite(25, HIGH);
+			last = 1;
+		}
+		else
+		{
+			digitalWrite(25, LOW);
+			last = 0;
+		}
+	}
 }
