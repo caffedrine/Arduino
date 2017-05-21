@@ -1,13 +1,12 @@
 #include "Arduino.h"
-
 #include <esp32-hal-ledc.h>
+
 #include "my_util.h"
 
-int pwm1 = 25;
-int pwm2 = 26;
+int pwm1 = 34;
+int pwm2 = 35;
 
 int analogInputPin = 36;
-
 int pwmLed = 5;
 
 void setup()
@@ -17,6 +16,10 @@ void setup()
 	pinMode(pwm2, OUTPUT);
 	pinMode(pwmLed, OUTPUT);
 	pinMode(analogInputPin, INPUT);
+
+	ledcSetup(1, 50, 16); //Channel 1 at 50Hz with 16Bits depth
+	ledcAttachPin(34, 1);
+	ledcAttachPin(35, 1);
 }
 
 int writtenVal = 100;
@@ -29,8 +32,11 @@ void loop()
 		writtenVal = to_int(Serial.readString());
 	}
 
-
-
+	for (int i = 3300; i < 6500; i = i + 100)
+	{
+		ledcWrite(1, i);       // sweep the servo
+		delay(100);
+	}
 
 	//We want to make sure about value we write, so we read the value using another port
 	//readedVal = map(analogRead(analogInputPin), 0, 4095, 0, 255);
