@@ -2,7 +2,7 @@
 #include <esp32-hal-dac.h>
 
 #include "connection.h"
-#include "DRV8835_ESP32_MotorsDriver.h"
+#include "DRV8835_Driver.h"
 #include "my_util.h"
 
 //Motor pins
@@ -36,10 +36,6 @@ typedef struct Command
 
 void setup()
 {
-    //Encoders PINS are set as INPUTS
-	pinMode(encoderLeftPin, INPUT);
-	pinMode(encoderRightPin, INPUT);
-
     Serial.begin(115200);
     Serial.println("---STARTING---");
 
