@@ -1,7 +1,6 @@
 #ifndef my_util_h
 #define my_util_h
 
-#include <WString.h>
 #include <Arduino.h>
 
 //Prototypes

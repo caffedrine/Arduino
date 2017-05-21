@@ -3,35 +3,34 @@
 
 #include "connection.h"
 #include "DRV8835_Driver.h"
+#include "QRE1113_Driver.h"
 #include "my_util.h"
+#include "commands.h"
 
-//Motor pins
-int motorLeft_IN1  = 25;	//Phase
-int motorLeft_IN2  = 14; 	//Enable
-int motorRight_IN1 = 26;	//Phase
-int motorRight_IN2 = 27;	//Enable
+//Motor object
+DRV8835 motors;
 
 //Encoders (IR Sensor: QRE1113)
-int encoderLeftPin = 35;
-int encoderRightPin = 39;
+QRE1113 leftEncoder(35);
+QRE1113 rightEncoder(39);
 
 //Functions prototypes
 void parseData();
 void updateEncoders();
 
-//Namespace with util functions prototype
-namespace utils
+//Commands structure and create a variable
+struct Command
 {
-	void writePeriodicData(String data, int interval = 1000);
-}
-
-//Commands structure
-typedef struct Command
-{
-	int commandID;
+	String name;
 	int degrees;
-	float time;
-	int anotherVar;
+	long duration;
+	int speed;
+	int nrSteps;
+	int nrRepetition;
+
+	//private data regarding command
+	bool updated = false;
+
 }command;
 
 void setup()
@@ -39,7 +38,14 @@ void setup()
     Serial.begin(115200);
     Serial.println("---STARTING---");
 
+    //initialize motors
+    motors.attachM1Pin(25, 14);
+    motors.attachM2Pin(26, 27);
+    motors.init();
 
+
+    /*
+    //initialize connection
     conn::setupAP();
     server.begin();
     conn::waitForServerClients();
@@ -49,6 +55,9 @@ void setup()
 int speed = 0;
 void loop()
 {
+	//Updating encoders values
+	leftEncoder.update();
+	rightEncoder.update();
 
 	/*
 	//Wifi link - check if client is still connected
@@ -67,7 +76,8 @@ void loop()
 
 	if (Serial.available() > 0)
 	{
-		speed = Serial.parseInt();
+		parseData(Serial.readString());
+		execute_command();
 	}
 
 
@@ -76,8 +86,97 @@ void loop()
 	//*/
 }
 
-void parseData(String *data)
+bool parseData(String data)
 {
-	//Format of data we receive: [0;-100;0] or [0;-100;0]#[0;-100;0]#[0;-100;0]
-	return;
+	//Format of data we receive: >>[0;-100;0] or [0;-100;0]#[0;-100;0]#[0;-100;0]
+	if(data.length() < 7)
+	{
+		command.updated = false;
+		return false;
+	}
+	data = data.substring( data.indexOf('[') + 1 );
+	data = data.substring( 0, data.indexOf(']') );
+
+	command.name = getStringPartByNr(data, ';', 0);
+	command.name.toUpperCase();
+
+	if(command.name == "D")
+	{
+		command.degrees = getStringPartByNr(data, ';', 1).toInt();
+	}
+	else if(command.name == "G")
+	{
+		command.speed = getStringPartByNr(data, ';', 1).toInt();
+		command.duration = getStringPartByNr(data, ';', 2).toInt();
+	}
+	else if(command.name== "R")
+	{
+		command.nrSteps = getStringPartByNr(data, ';', 1).toInt();
+		command.nrRepetition = getStringPartByNr(data, ';', 2).toInt();
+	}
+	else if(command.name == "P")
+	{
+		command.duration = getStringPartByNr(data, ';', 1).toInt();
+	}
+	else
+	{
+		command.updated = false;
+		return false;
+	}
+
+	command.updated = true;
+	return true;
+}
+
+bool execute_command()
+{
+	if(command.updated == false)
+		return false;
+
+	if(command.name == "D")
+	{
+		return true;
+	}
+	else if(command.name == "G")
+	{
+		command_gear();
+		return true;
+	}
+	else if(command.name== "R")
+	{
+		return true;
+	}
+	else if(command.name == "P")
+	{
+		return true;
+	}
+	else
+	{
+		command.updated = false;
+		return false;
+	}
+}
+
+void command_direction()
+{
+	Serial.println("Executing direction...");
+	Serial.println("Degree:\t" + String(command.degrees));
+}
+
+void command_gear()
+{
+	Serial.println("Executing gear...");
+	Serial.println("Speed:\t" + String(command.speed) + "\tDuration: " + String(command.duration));
+}
+
+void command_repetition()
+{
+	Serial.println("Executing repetition...");
+	Serial.println("nrSteps: :\t" + String(command.nrSteps) + "\tnrRepetitions: " + String(command.nrRepetition));
+}
+
+void command_pause()
+{
+	Serial.println("Executing pause...");
+	Serial.println("Duration:\t" + String(command.duration));
 }
