@@ -3,66 +3,46 @@
 
 #include "my_util.h"
 
-int pwm1 = 34;
-int pwm2 = 35;
-
+int analogOutputPin = 5;
 int analogInputPin = 36;
-int pwmLed = 5;
+
+//prototypes
+void ledcAnalogWrite(uint8_t channel, uint32_t value, uint32_t valueMax = 4095);
 
 void setup()
 {
 	Serial.begin(115200);
-	pinMode(pwm1, OUTPUT);
-	pinMode(pwm2, OUTPUT);
-	pinMode(pwmLed, OUTPUT);
+	pinMode(analogOutputPin, OUTPUT);
 	pinMode(analogInputPin, INPUT);
 
-	ledcSetup(1, 50, 16); //Channel 1 at 50Hz with 16Bits depth
-	ledcAttachPin(34, 1);
-	ledcAttachPin(35, 1);
+	//Setting up
+	ledcSetup(1, 5000, 13); //Channel 1; 5000Hz; 13 bits resolution
+	ledcAttachPin(analogOutputPin, 0);
 }
 
-int writtenVal = 100;
+int writtenVal = 0;
 int readedVal = 0;
 
 void loop()
 {
 	if(Serial.available())
-	{
-		writtenVal = to_int(Serial.readString());
-	}
+			writtenVal = to_int(Serial.readString());
+	readedVal = analogRead(analogInputPin);
 
-	for (int i = 3300; i < 6500; i = i + 100)
-	{
-		ledcWrite(1, i);       // sweep the servo
-		delay(100);
-	}
+	ledcAnalogWrite(0, writtenVal);
 
 	//We want to make sure about value we write, so we read the value using another port
-	//readedVal = map(analogRead(analogInputPin), 0, 4095, 0, 255);
+	readedVal = analogRead(analogInputPin);
 
 	//Print data for debugging
 	printPeriodicData("Current speed: " + to_string(writtenVal) + "\t Readed val: " + readedVal, 1000);
 }
 
-void updateMotor(int speed)
+void ledcAnalogWrite(uint8_t channel, uint32_t value, uint32_t valueMax)
 {
-	static int interval = 15;
-	static int last = 1;
+	// calculate duty, 8191 from 2 ^ 13 - 1
+	uint32_t duty = (8191 / valueMax) * min(value, valueMax);
 
-	static long previousMillis = 0;
-	if (millis() - previousMillis > interval)
-	{
-		previousMillis = millis();
-		if(last == 0)
-		{
-			digitalWrite(25, HIGH);
-			last = 1;
-		}
-		else
-		{
-			digitalWrite(25, LOW);
-			last = 0;
-		}
-	}
+	// write duty to LEDC
+	ledcWrite(channel, duty);
 }
