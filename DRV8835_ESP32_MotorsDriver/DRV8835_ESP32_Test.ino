@@ -8,6 +8,7 @@ DRV8835 motors;
 void setup()
 {
 	Serial.begin(115200);
+	Serial.println("---START---");
 
 	//Initialize motors
 	motors.attachM1Pin(25, 26);	// IN=25, PH=26
