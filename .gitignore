@@ -10,4 +10,10 @@
 */.cproject
 */.ino.cpp
 *~
-.gitignore
+*/Visual Micro
+*/*.sdf
+*/*.suo
+*/*.vcxproj
+*/*.filters
+*/*.opensdf
+*/*.sln
