@@ -1,3 +1,3 @@
 # DRV8834 Stepet Motor Driver - Arduino Library
 
-!(pinmap)[pinmap.png]
+![pinmap](pinmap.png)
