@@ -1,26 +1,31 @@
 #include <Arduino.h>
-#include <Stepper.h>
 
+#include "DRV8834.h"
 #include "../libs/my_util.h"
 
-const int enablePin = 13;
 
-const int stepsPerRevolution = 200; // change this to fit the number of steps per revolution
-// for your motor
+// Motor steps per revolution. Most steppers are 200 steps or 1.8 degrees/step
+#define MOTOR_STEPS 200
 
-// initialize the stepper library on pins 8 through 11:
-Stepper myStepper(stepsPerRevolution, 8, 9, 10, 11);
+// All the wires needed for full functionality
+#define DIR 	8
+#define STEP 	9
+#define M0 		10
+#define M1 		11
+#define ENBL 	13
 
-int stepCount = 0;  // number of steps the motor has taken
+DRV8834 stepper(MOTOR_STEPS, DIR, STEP, ENBL, M0, M1);
+
 
 void setup()
 {
 	Serial.begin(9600);
-	pinMode(enablePin, OUTPUT);
+	stepper.begin(1, 1);
 }
 
 int speed = 0;
 
+/*
 void loop()
 {
 	//Grab speed from serial port
@@ -30,19 +35,18 @@ void loop()
 		if(speed == 0)
 		{
 			Serial.println("BRAKE");
-			digitalWrite(enablePin, HIGH);
 		}
 		else
 		{
 			Serial.println("New speed: " + to_string(speed));
-			digitalWrite(enablePin, LOW);
 		}
 	}
-	if(speed > 0)
-	{
-		myStepper.setSpeed(speed);
-		myStepper.step(stepsPerRevolution / 1);
-	}
+}
+*/
+
+void loop()
+{
+	stepper.rotate(360);
 }
 
 
