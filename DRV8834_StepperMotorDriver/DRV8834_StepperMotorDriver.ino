@@ -1,66 +1,47 @@
-/*
- * Simple demo, should work with any driver board
- *
- * Connect STEP, DIR as indicated
- *
- * Copyright (C)2015 Laurentiu Badea
- *
- * This file may be redistributed under the terms of the MIT license.
- * A copy of this license has been included with this distribution in the file LICENSE.
- */
 #include <Arduino.h>
-#include "BasicStepperDriver.h"
+#include <Stepper.h>
 
-// Motor steps per revolution. Most steppers are 200 steps or 1.8 degrees/step
-#define MOTOR_STEPS 200
+#include "../libs/my_util.h"
 
-// All the wires needed for full functionality
-#define DIR 8
-#define STEP 9
-//Uncomment line to use enable/disable functionality
-//#define ENBL 7
+const int enablePin = 13;
 
-// Since microstepping is set externally, make sure this matches the selected mode
-// 1=full step, 2=half step etc.
-#define MICROSTEPS 1
+const int stepsPerRevolution = 200; // change this to fit the number of steps per revolution
+// for your motor
 
-// 2-wire basic config, microstepping is hardwired on the driver
-BasicStepperDriver stepper(MOTOR_STEPS, DIR, STEP);
+// initialize the stepper library on pins 8 through 11:
+Stepper myStepper(stepsPerRevolution, 8, 9, 10, 11);
 
-//Uncomment line to use enable/disable functionality
-//BasicStepperDriver stepper(MOTOR_STEPS, DIR, STEP, ENBL);
+int stepCount = 0;  // number of steps the motor has taken
 
 void setup()
 {
-	/*
-	 * Set target motor RPM.
-	 * These motors can do up to about 200rpm.
-	 * Too high will result in a high pitched whine and the motor does not move.
-	 *
-	 * Also tell the driver the microstep level we selected.
-	 * If mismatched, the motor will move at a different RPM than chosen.
-	 */
-	stepper.begin(120, MICROSTEPS);
+	Serial.begin(9600);
+	pinMode(enablePin, OUTPUT);
 }
+
+int speed = 0;
 
 void loop()
 {
-
-	// energize coils - the motor will hold position
-	// stepper.enable();
-
-	/*
-	 * Moving motor one full revolution using the degree notation
-	 */
-	stepper.rotate(360);
-
-	/*
-	 * Moving motor to original position using steps
-	 */
-	stepper.move(-200 * MICROSTEPS);
-
-	// pause and allow the motor to be moved by hand
-	// stepper.disable();
-
-	delay(5000);
+	//Grab speed from serial port
+	if(Serial.available())
+	{
+		speed = to_int(Serial.readString());
+		if(speed == 0)
+		{
+			Serial.println("BRAKE");
+			digitalWrite(enablePin, HIGH);
+		}
+		else
+		{
+			Serial.println("New speed: " + to_string(speed));
+			digitalWrite(enablePin, LOW);
+		}
+	}
+	if(speed > 0)
+	{
+		myStepper.setSpeed(speed);
+		myStepper.step(stepsPerRevolution / 1);
+	}
 }
+
