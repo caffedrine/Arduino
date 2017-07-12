@@ -25,7 +25,6 @@
 #define M1 11
 DRV8834 stepper(MOTOR_STEPS, DIR, STEP, M0, M1);
 
-
 void setup()
 {
 	/*

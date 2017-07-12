@@ -1,9 +1,8 @@
 #include <Arduino.h>
 
 #include "DRV8834.h"
-#include "../libs/my_util.h"
-
-
+//#include "../libs/my_util.h"
+#include "my_util.h"
 // Motor steps per revolution. Most steppers are 200 steps or 1.8 degrees/step
 #define MOTOR_STEPS 200
 
@@ -15,7 +14,6 @@
 #define ENBL 	13
 
 DRV8834 stepper(MOTOR_STEPS, DIR, STEP, ENBL, M0, M1);
-
 
 void setup()
 {
