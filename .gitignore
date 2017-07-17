@@ -10,6 +10,13 @@
 */.cproject
 */.ino.cpp
 *~
+*.settings
+*.project
+*.cproject
+*.ino.cpp
+*.metadata
+*.swp
+
 */Visual Micro
 */*.sdf
 */*.suo
@@ -17,3 +24,4 @@
 */*.filters
 */*.opensdf
 */*.sln
+
