@@ -28,8 +28,6 @@ void setup()
 
 	//Pass RPM and MICROSTEPS
 	stepper.begin(200, 16);
-
-	//
 }
 
 void loop()
