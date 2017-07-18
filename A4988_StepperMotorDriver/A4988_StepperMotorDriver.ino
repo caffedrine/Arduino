@@ -32,7 +32,6 @@ void setup()
 
 void loop()
 {
-
 	if(Serial.available())
 	{
 		int readVal = to_int(Serial.readString());
@@ -50,7 +49,12 @@ void loop()
 			Serial.println("SPEED: " + to_string(readVal));
 		}
 	}
-	//*/
+	stepper.move(1);
 
-	stepper.rotate(360);
+	//Time required for one microstep
+//	int micros1 = micros();
+//	stepper.move(1);
+//	int micros2 = micros();
+//	Serial.println("Time for one step: " + to_string(micros2-micros1));
+//	delay(500);
 }
