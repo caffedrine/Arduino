@@ -1,8 +1,8 @@
 # A4988 Stepper Motor Driver - Arduino Firmware
 
 ### Pinmap
-![pinmap](driver2.png)
+![pinmap](docs/driver2.png)
 
 ### Connections
-![driver](driver.png)
+![driver](docs/driver.png)
 
