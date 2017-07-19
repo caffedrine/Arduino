@@ -44,7 +44,7 @@ void loop()
 		if(readVal == 0)
 		{
 			speed = 200;
-			stepper.disable();
+			stepper.brake();
 			Serial.println("BRAKE!");
 		}
 		else
