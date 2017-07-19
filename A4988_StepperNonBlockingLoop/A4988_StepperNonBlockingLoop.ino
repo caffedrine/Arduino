@@ -4,6 +4,7 @@
 
 #include <Arduino.h>
 #include "../libs/my_util.h"
+#include "PWM.h"
 
 // Motor steps per revolution. Most steppers are 200 steps or 1.8 degrees/step
 #define MOTOR_STEPS 200
@@ -38,12 +39,26 @@ void setup()
 	digitalWrite(MS1, HIGH);
 	digitalWrite(MS2, HIGH);
 	digitalWrite(MS3, HIGH);
+	//analogWrite(ENBL, LOW);
+	pinMode(A0, INPUT);
+	 //initialize all timers except for 0, to save time keeping functions
+	 InitTimersSafe();
+	 bool success = SetPinFrequencySafe(STEP, 2000);
+
+
+	 if(success)
+		 Serial.println("SUCCESS");
+	 else
+		 Serial.println("FAIL");
+
 }
 
-unsigned int pause = 100;	//microseconds
+unsigned long pause = 200;	//microseconds
+static unsigned long prevMicros = 0;
+static bool lastState = 0;
+
 void loop()
 {
-
 	/*
 	// Makes 200 pulses*microsteps for making one full cycle rotation
 	for (int x = 0; x < 200*16; x++)
@@ -63,25 +78,25 @@ void loop()
 		{
 			pause = 200;
 			digitalWrite(ENBL, HIGH);
+			//pwmWrite(STEP, 1);
 			Serial.println("BRAKE!");
 		}
 		else
 		{
 			pause = readVal;
-			digitalWrite(ENBL, LOW);
+			analogWrite(ENBL, LOW);
+			//pwmWrite(STEP, 1);
 			Serial.println("NEW SPEED: " + to_string(pause));
 		}
 	}
 
+	pause = map(analogRead(A0), 0, 1024, 0, 5000);
 	//Update motor every interval of time
-	static unsigned int prevMicros = 0;
-	static bool lastState = 0;
 	if(micros() - prevMicros > pause)
 	{
-		digitalWrite(STEP, !lastState);
-
-		lastState = !lastState;
 		prevMicros = micros();
+		lastState = !lastState;
+		digitalWrite(STEP, lastState);
 	}
 	//*/
 }
