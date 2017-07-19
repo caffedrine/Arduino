@@ -37,11 +37,6 @@ StepperPWM::StepperPWM(int DIR, int STEP, int ENBL, int MS1, int MS2, int MS3):
 	digitalWrite(MS3, HIGH);
 }
 
-StepperPWM::~StepperPWM()
-{
-	// TODO Auto-generated destructor stub
-}
-
 void StepperPWM::initPins()
 {
 	pinMode(dirPin, OUTPUT);
