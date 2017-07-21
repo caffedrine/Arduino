@@ -10,9 +10,9 @@ void setup()
 	pinMode(10, OUTPUT);
 }
 
+long i = 0;
 void loop()
 {
-	analogWrite(10, 812);
-	Serial.println( analogRead(A0) );
-	delay(300);
+	Serial.println(i++);
+	delay(500);
 }
