@@ -80,6 +80,5 @@ bool StepperPWM::setFrequency(unsigned long freq)
 
 void StepperPWM::run()
 {
-	this->enable();
 	pwmWrite(stepPin, 1);
 }

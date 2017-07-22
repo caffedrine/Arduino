@@ -3,8 +3,7 @@
  */
 
 #include <Arduino.h>
-#include "my_util.h"
-#include "PWM.h"
+#include "../libs/my_util.h"
 #include "StepperPWM.h"
 
 // All the wires needed for full functionality
@@ -51,6 +50,7 @@ void loop()
 		{
 			speed = readVal;
 			stepper.setFrequency(speed);
+			stepper.enable();
 			stepper.run();	//Write val right away ^_^
 			Serial.println("NEW SPEED: " + to_string(speed));
 		}

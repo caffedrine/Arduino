@@ -16,7 +16,7 @@ public:
 	StepperPWM(int DIR, int STEP, int ENBL, int MS1);
 	StepperPWM(int DIR, int STEP, int ENBL, int MS1, int MS2);
 	StepperPWM(int DIR, int STEP, int ENBL, int MS1, int MS2, int MS3);
-	virtual ~StepperPWM();
+	virtual ~StepperPWM(){}
 
 	bool init();
 	bool setFrequency(unsigned long freq);
