@@ -32,6 +32,9 @@ void setup()
 	}
 	else
 		Serial.println("ERROR: Can't initialize motor with given pins!");
+
+	stepper.enable();
+	stepper.setFrequency(2000);
 }
 
 unsigned long speed = 200;	//microseconds
