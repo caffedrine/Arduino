@@ -14,11 +14,11 @@
 #define ENBL 	13
 
 //DRV8834 stepper(MOTOR_STEPS, DIR, STEP, ENBL);
-DRV8834 stepper(MOTOR_STEPS, DIR, STEP, ENBL, M0, M1);
+DRV8834 stepper(MOTOR_STEPS, DIR, STEP, ENBL, M0, M1);	//microsteps enabled
 
 void setup()
 {
-	Serial.begin(9600);
+	Serial.begin(115200);
 	Serial.println("---STARTED---");
 	stepper.begin(50, 1);
 }
@@ -26,6 +26,7 @@ void setup()
 int speed = 0;
 void loop()
 {
+
 	//Grab speed from serial port
 	if(Serial.available())
 	{
@@ -44,7 +45,8 @@ void loop()
 			//digitalWrite(ENBL, HIGH);
 		}
 	}
-	stepper.rotate(360);
+	stepper.move(1);
+
 }
 
 
