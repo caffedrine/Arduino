@@ -1,6 +1,6 @@
 /**
  * Assuming that stepper drivers like DRV8843 are used and microsteps and enable pin are active.
- * So only pins required are STEP and possibly DIR
+ * So only pins required are STEP
  */
 
 #include "Arduino.h"
@@ -13,22 +13,22 @@ void setup()
 {
 	Serial.begin(115200);
 	Serial.println("---START---");
-	Serial.println(("Data format: speed1,speed2. e.g.: 200,200"));
+	Serial.println(("Data format: speed1,speed2. e.g.: 200,200>"));	// don't forget about ">"
 }
 
 int t1 = 200; bool lastState1 = false;
 int t2 = 200; bool lastState2 = false;
 
-String serialString;
-
 void loop()
 {
 	/**
 	 * Attempting to read serial without any loop delay in order
-	 * to receive smooth speed changing
+	 * to receive smooth speed changing.
+	 * So reading char by char is the best option in this case
 	 */
 	if (Serial.available())
 	{
+		static String serialString;
 		char c = Serial.read();
 
 		if(c == '>')
@@ -53,7 +53,7 @@ void loop()
 		}
 	}
 
-	// Update motor1 if is the time
+	// Update motor1
 	static unsigned long lastMicros1 = micros();
 	if(micros() - lastMicros1 > (unsigned long)t1)
 	{
@@ -62,12 +62,9 @@ void loop()
 
 		// write digital signal
 		digitalWrite(STEP1, lastState1);
-
-
-
 	}
 
-	// update motor2 if is the time
+	// update motor2
 	static unsigned long lastMicros2 = micros();
 	if(micros() - lastMicros2 > (unsigned long)t2)
 	{
@@ -78,3 +75,4 @@ void loop()
 		digitalWrite(STEP2, lastState2);
 	}
 }
+
