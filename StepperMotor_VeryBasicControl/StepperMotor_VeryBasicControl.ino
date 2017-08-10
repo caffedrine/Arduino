@@ -1,7 +1,7 @@
 #include <Arduino.h>
 
-#define DIR 	8
-#define STEP	9
+#define DIR 	13
+#define STEP	10
 
 void setup()
 {
@@ -10,6 +10,16 @@ void setup()
 
 	pinMode(DIR, OUTPUT);
 	pinMode(STEP, OUTPUT);
+
+
+	pinMode(2, INPUT);
+	pinMode(3, INPUT);
+	//pinMode(4, INPUT);
+	pinMode(5, INPUT);
+	pinMode(6, INPUT);
+	pinMode(7, INPUT);
+
+	pinMode(9, INPUT);
 }
 
 
