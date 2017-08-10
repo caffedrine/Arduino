@@ -75,7 +75,7 @@ void StepperPWM::disable()
 
 bool StepperPWM::setFrequency(unsigned long freq)
 {
-	return SetPinFrequencySafe(stepPin, freq);
+	return SetPinFrequency(stepPin, freq);
 }
 
 void StepperPWM::run()

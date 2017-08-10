@@ -11,7 +11,7 @@
 #include "../libs/my_util.h"
 #include "StepperPWM.h"
 
-#define STEP1	9
+#define STEP1	3
 #define STEP2	10
 
 // defining motors = PARAMS: directionPIN, stepPIN, enablePIN
