@@ -8,7 +8,7 @@
 #include "../libs/my_util.h"
 #include "StepperPWM.h"
 
-#define STEP1	9
+#define STEP1	3
 #define STEP2	10
 
 // defining motors = PARAMS: directionPIN, stepPIN, enablePIN
@@ -20,6 +20,14 @@ void setup()
 	Serial.begin(115200);
 	Serial.println("---START---");
 	Serial.println(("Data format: speed1,speed2. e.g.: 200,200"));
+
+	// Check if pins can be used to change PWM freq
+	if (!motor1.init() || !motor2.init())
+	{
+		Serial.println("ERROR: Can't init motors! Use pins 9 and 10 instead.");
+		while (1)
+			;
+	}
 }
 
 void loop()
@@ -32,9 +40,12 @@ void loop()
 		int speed1 = to_int(getStringPartByNr(recvStr, ',', 0));
 		int speed2 = to_int(getStringPartByNr(recvStr, ',', 1));
 
+		// print recv values as debugging data
+		Serial.println("RECEIVED: " + to_string(speed1) + "," + to_string(speed2));
+
 		// setting up motors speeds
-		motor1.setFrequency(speed1);
-		motor2.setFrequency(speed2);
+		if(!motor1.setFrequency(speed1)) Serial.println("MOTOR 1 PWN FREQ SET FAILED!!");
+		if(!motor2.setFrequency(speed2)) Serial.println("MOTOR 2 PWN FREQ SET FAILED!!");
 
 		// sending PWM output
 		motor1.run();
