@@ -27,7 +27,7 @@ void setup()
 	Serial.begin(115200);
 
 	//Pass RPM and MICROSTEPS
-	stepper.begin(200, 16);
+	stepper.begin(50, 16);
 }
 
 void loop()
