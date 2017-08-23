@@ -30,40 +30,40 @@ void loop()
 		d = Serial.read();
 		switch (d)
 		{
-		case'a':
-			Serial.println("arming.....");
-			THR.write(0);
-			RUDD.write(180);
-			delay(1000);
-			RUDD.write(90);
-			Serial.println("ARMED......");
-			break;
+			case'a':
+				Serial.println("arming.....");
+				THR.write(0);
+				RUDD.write(180);
+				delay(1000);
+				RUDD.write(90);
+				Serial.println("ARMED......");
+				break;
 
-		case 'b':
-			THR.write(90);
-			Serial.println("MIN");
-			break;
+			case 'b':
+				THR.write(90);
+				Serial.println("MIN");
+				break;
 
-		case 'c':
-			THR.write(135);
-			Serial.println("MED");
-			break;
+			case 'c':
+				THR.write(135);
+				Serial.println("MED");
+				break;
 
-		case 'e':
-			THR.write(180);
-			Serial.println("MAX");
-			break;
+			case 'e':
+				THR.write(180);
+				Serial.println("MAX");
+				break;
 
-		case 'd':
-			Serial.println("Disarming.....");
-			THR.write(0);
-			delay(1000);
-			THR.write(0);
-			RUDD.write(0);
-			delay(1000);
-			RUDD.write(90);
-			Serial.println("DISARMED......");
-			break;
+			case 'd':
+				Serial.println("Disarming.....");
+				THR.write(0);
+				delay(1000);
+				THR.write(0);
+				RUDD.write(0);
+				delay(1000);
+				RUDD.write(90);
+				Serial.println("DISARMED......");
+				break;
 		}
 	}
 }
