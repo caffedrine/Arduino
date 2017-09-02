@@ -1,3 +1,7 @@
+/**
+ * Program to calibrate ESC Drivers for BLDC Motors
+*/
+
 #include <Servo.h>
 
 #include <string.h>
