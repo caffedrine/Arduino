@@ -6,8 +6,9 @@
 
 #include <string.h>
 
-#define MAX_SIGNAL 180
-#define MIN_SIGNAL 0
+#define MAX_SIGNAL 1800
+#define MIN_SIGNAL 700
+
 #define MOTOR_PIN 8
 
 Servo motor;
