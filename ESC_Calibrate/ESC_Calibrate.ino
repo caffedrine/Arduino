@@ -10,7 +10,6 @@ Servo motor;
 
 void setup() 
 {
-	
 	Serial.begin(9600);
 	Serial.println("Program begin...");
 	Serial.println("This program will calibrate the ESC.");
@@ -47,10 +46,10 @@ void loop()
 		motor.write(map(to_int(serialString), 0, 100, MIN_SIGNAL, MAX_SIGNAL));
 		serialString = "";		
 	}
-	
 }
 
 int to_int(String str)
 {
 	return atoi(str.c_str());
 }
+
