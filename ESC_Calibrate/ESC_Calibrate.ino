@@ -32,7 +32,6 @@ void setup()
 	// Send min output
 	Serial.println("Sending minimum output");
 	motor.write(MIN_SIGNAL);
-	/**/
 }
 
 String serialString = "";
@@ -40,9 +39,9 @@ void loop()
 {	
 	while (Serial.available())
 	{
-		char c = Serial.read();  //gets one byte from serial buffer
-		serialString += c; //makes the String readString
-		delay(2);  //slow looping to allow buffer to fill with next character
+		char c = Serial.read();	//gets one byte from serial buffer
+		serialString += c; 		//makes the String readString
+		delay(2);  				//slow looping to allow buffer to fill with next character
 	}
 
 	if (serialString.length() > 0)
