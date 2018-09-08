@@ -32,11 +32,11 @@ void setup()
 
 void loop()
 {
-	if(Serial.available())
+	if (Serial.available())
 	{
 		int readVal = to_int(Serial.readString());
 
-		if(readVal == 0)
+		if (readVal == 0)
 		{
 			stepper.setRPM(0);
 			stepper.disable();
