@@ -41,6 +41,14 @@ public:
 		this->_Step(this->_CurrentStep);
 	}
 
+	void Stop()
+	{
+		digitalWrite( this->_pinIn1, 0 );
+		digitalWrite( this->_pinIn2, 0 );
+		digitalWrite( this->_pinIn3, 0 );
+		digitalWrite( this->_pinIn4, 0 );
+	}
+
 	void SetDirection(DIRECTION dir)
 	{
 		this->_CurrentDirection = dir;

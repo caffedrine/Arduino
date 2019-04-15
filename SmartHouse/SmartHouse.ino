@@ -25,6 +25,9 @@ bool MOTION_SENSOR_ENABLED = true;
 /* Rooms status (on/off) */
 uint8_t RoomsStatusLights[8] = {0};
 
+/* Garage door open/close timeout */
+unsigned long GarageMillisTimeout = millis();
+
 void setup()
 {
 	/* Configure OUTPUT pins */
@@ -69,7 +72,6 @@ void setup()
 	lcd.setCursor(0, 1);
 	lcd.print("  SMART HOUSE!");
 }
-
 
 void onIrKeyRecv(unsigned long keyVal)
 {
@@ -133,9 +135,22 @@ void onIrKeyRecv(unsigned long keyVal)
 	{
 		MOTION_SENSOR_ENABLED = !MOTION_SENSOR_ENABLED;
 		digitalWrite(PIN_OUTDOOR_LIGHT, LOW);
-		Serial.print("Motion detection: ");
-		Serial.println(((MOTION_SENSOR_ENABLED)?("ENABLED"):("DISABLED")));
+//		Serial.print("Motion detection: ");
+//		Serial.println(((MOTION_SENSOR_ENABLED)?("ENABLED"):("DISABLED")));
 	}
+	else if( keyVal == PHONE_IR_CODE_KEY_CH_PLUS || keyVal == RC_IR_CODE_KEY_CH_PLUS)
+	{
+		GarageMillisTimeout = millis();
+		motor.SetDirection(X11Stepper::DIRECTION::FORWARD);
+		return;
+	}
+	else if( keyVal == PHONE_IR_CODE_KEY_CH_MINUS || RC_IR_CODE_KEY_CH_MINUS)
+	{
+		GarageMillisTimeout = millis();
+		motor.SetDirection(X11Stepper::DIRECTION::BACKWARD);
+		return;
+	}
+
 
 	String buffer = "";
 	for(int i = 0; i < 8; i++)
@@ -200,6 +215,19 @@ void Task_MotionDetection()
 
 void Task_Garage()
 {
+	static unsigned long PrevStepTimestamp = 0;
+	if( millis() - GarageMillisTimeout < 200 )
+	{
+		if( millis() - PrevStepTimestamp >=2 )
+		{
+			PrevStepTimestamp = millis();
+			motor.StepNext();
+		}
+	}
+}
+
+void Task_UpdateLcd()
+{
 
 }
 
@@ -208,4 +236,5 @@ void loop()
 	Task_IR();
 	Task_MotionDetection();
 	Task_Garage();
+	Task_UpdateLcd();
 }
