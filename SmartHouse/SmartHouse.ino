@@ -1,83 +1,17 @@
-#include "Arduino.h"
-
+#include <Arduino.h>
+#include <X113647Stepper.h>
 #include <IRremote.h>
 #include <LiquidCrystal.h>
 
-/* PINS MAPPING */
-#define PIN_LIGHT_ROOM_1			28
-#define	PIN_LIGHT_ROOM_2			29
-#define PIN_LIGHT_ROOM_3			30
-#define	PIN_LIGHT_ROOM_4			31
-#define PIN_LIGHT_ROOM_5			32
-#define	PIN_LIGHT_ROOM_6			33
-#define PIN_LIGHT_ROOM_7			34
-#define	PIN_LIGHT_ROOM_8			35
-
-#define PIN_STEPPER_IN1				8
-#define PIN_STEPPER_IN2				9
-#define PIN_STEPPER_IN3				10
-#define PIN_STEPPER_IN4				11
-
-#define PIN_LCD_D4					24
-#define PIN_LCD_D5					25
-#define PIN_LCD_D6					26
-#define PIN_LCD_D7					27
-#define PIN_LCD_RS					22
-#define PIN_LCD_EN					23
-
-#define PIN_SKELETON_LIGHTS			38
-
-#define PIN_PRESENCE_SENSOR			3
-#define PIN_DAYLIGHT_SENSOR			40
-#define PIN_IR_RECEIVER				12
-#define PIN_OUTDOOR_LIGHT			51
-
-/* IR Codes */
-#define PHONE_IR_CODE_KEY_0			3772811383
-#define PHONE_IR_CODE_KEY_1			3772784863
-#define PHONE_IR_CODE_KEY_2			3772817503
-#define PHONE_IR_CODE_KEY_3			3772801183
-#define PHONE_IR_CODE_KEY_4			3772780783
-#define PHONE_IR_CODE_KEY_5			3772813423
-#define PHONE_IR_CODE_KEY_6			3772797103
-#define PHONE_IR_CODE_KEY_7			3772788943
-#define PHONE_IR_CODE_KEY_8			3772821583
-#define PHONE_IR_CODE_KEY_9			3772805263
-#define PHONE_IR_CODE_KEY_YELLOW	3772819543
-#define PHONE_IR_CODE_KEY_BLUE		3772803223
-#define PHONE_IR_CODE_KEY_RED		3772790473
-#define PHONE_IR_CODE_KEY_GREEN		3772786903
-#define PHONE_IR_CODE_KEY_PLUS		3772833823
-#define PHONE_IR_CODE_KEY_MINUS		3772829743
-#define PHONE_IR_CODE_KEY_CH_PLUS	3772795063
-#define PHONE_IR_CODE_KEY_CH_MINUS	3772778743
-#define PHONE_IR_CODE_KEY_POWER		3772793023
-#define PHOME_IR_CODE_KEY_OUTDOOR_LIGHTS_ENABLE	3772816993
-
-#define RC_IR_CODE_KEY_0			109562876
-#define RC_IR_CODE_KEY_1			109562864
-#define RC_IR_CODE_KEY_2			109562824
-#define RC_IR_CODE_KEY_3			109562856
-#define RC_IR_CODE_KEY_4			109562872
-#define RC_IR_CODE_KEY_5			109562820
-#define RC_IR_CODE_KEY_6			109562852
-#define RC_IR_CODE_KEY_7			109562868
-#define RC_IR_CODE_KEY_8			109562828
-#define RC_IR_CODE_KEY_9			109562860
-#define RC_IR_CODE_KEY_YELLOW		109562822
-#define RC_IR_CODE_KEY_BLUE			109562832
-#define RC_IR_CODE_KEY_RED			109562838
-#define RC_IR_CODE_KEY_GREEN		109562870
-#define RC_IR_CODE_KEY_PLUS			109562874
-#define RC_IR_CODE_KEY_MINUS		109562826
-#define RC_IR_CODE_KEY_CH_PLUS		109562834
-#define RC_IR_CODE_KEY_CH_MINUS		109562866
-#define RC_IR_CODE_KEY_POWER		109562816
-#define RC_IR_CODE_KEY_OUTDOOR_LIGHTS_ENABLE	109562844
+#include "HAL.h"
+#include "IR_Codes.h"
 
 /* IR Receiver handlers */
 IRrecv irrecv(PIN_IR_RECEIVER);
 decode_results results;
+
+/* Motor handler */
+X11Stepper motor(PIN_STEPPER_IN1, PIN_STEPPER_IN2, PIN_STEPPER_IN3, PIN_STEPPER_IN4);
 
 /* LCD config */
 LiquidCrystal lcd(PIN_LCD_RS, PIN_LCD_EN, PIN_LCD_D4, PIN_LCD_D5, PIN_LCD_D6, PIN_LCD_D7);
@@ -103,11 +37,6 @@ void setup()
 	pinMode(PIN_LIGHT_ROOM_7, OUTPUT);
 	pinMode(PIN_LIGHT_ROOM_8, OUTPUT);
 
-	pinMode(PIN_STEPPER_IN1, OUTPUT);
-	pinMode(PIN_STEPPER_IN2, OUTPUT);
-	pinMode(PIN_STEPPER_IN3, OUTPUT);
-	pinMode(PIN_STEPPER_IN4, OUTPUT);
-
 	pinMode(PIN_LCD_D4, OUTPUT);
 	pinMode(PIN_LCD_D5, OUTPUT);
 	pinMode(PIN_LCD_D6, OUTPUT);
@@ -131,7 +60,7 @@ void setup()
 	lcd.begin(16, 2);
 
 	/* Init serial for debugging */
-	Serial.begin(9600);
+	Serial.begin(115200);
 
 	/* Init column 1 with motion detection */
 	lcd.clear();
@@ -139,12 +68,6 @@ void setup()
 	lcd.print("   WELCOME TO");
 	lcd.setCursor(0, 1);
 	lcd.print("  SMART HOUSE!");
-}
-
-void loop()
-{
-	Task_IR();
-	Task_MotionDetection();
 }
 
 
@@ -275,3 +198,14 @@ void Task_MotionDetection()
 	}
 }
 
+void Task_Garage()
+{
+
+}
+
+void loop()
+{
+	Task_IR();
+	Task_MotionDetection();
+	Task_Garage();
+}
