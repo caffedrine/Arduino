@@ -1,88 +1,52 @@
-/*
- Dual Stepper Motor Control (Arduino UNO R3)
- Controls the speed and direction of two stepper motors
- via two analog inputs. Used to achieve two-dimensional
- movement controlled by a joystick. End-of-track sensors
- prevent damage to the structure and motors.
- Based on "Speed Control" example of the Stepper lib.
- Please note the Stepper library produces a bipolar sequence.
- By swapping the two middle cables, a unipolar seq. is obtained.
- By Eduardo Rivas, David Escobar y Ángel Moreno
- for Universidad Don Bosco of El Salvador, 2013.
- */
+#include <Arduino.h>
 
-#include "Stepper.h"
+#define PULSE_PIN 	13
+#define START_MOVE	12
 
-// Set steps per revolution
-const int PPR = 200;
-
-// Motor Y in pins 10-13
-Stepper motor1(PPR, 10, 11, 12, 13);
-// Motor X in pins 6-9
-Stepper motor2(PPR, 6, 7, 8, 9);
+#define DELAY_US	500
 
 void setup()
 {
-	// Pins 2-5 set up as inputs with pullup resistors. Sensors are active-low.
-	for (int i = 2; i <= 5; i++)
-	{
-		pinMode(i, INPUT_PULLUP);
-	}
+	Serial.begin(9600);
+	pinMode(PULSE_PIN, OUTPUT);
+	pinMode(START_MOVE, INPUT);
 }
+
+int CurrTimestamp, PrevTimestamp;
+
+int StepsToDo = 0;
+bool ToggleFlag;
 
 void loop()
 {
-	// MOTOR 1 CONTROL
-	int speed = 0;
-	int direction = 1;
-	// Get joystick position on A1
-	int position = analogRead(1);
-
-	/*
-	 Values between 562 and 1023 mean forward movement. Speed gets
-	 mapped from 0 to 10 and direction stays positive. Sensors will
-	 block any movement if HIGH.
-	 */
-	if (position > 562 and digitalRead(2) == HIGH)
+	if(Serial.available() > 0)
 	{
-		speed = map(position, 562, 1023, 0, 10);
-	}
-	/*
-	 Values between 0 and 462 mean backwards movement. Speed gets
-	 mapped from 10 to 0 and direction is negative. Sensors will
-	 block any movement if HIGH.
-	 */
-	if (position < 462 and digitalRead(3) == HIGH)
-	{
-		speed = map(position, 0, 462, 10, 0);
-		direction = -1;
-	}
-	// Values between 462 and 562 mean no movement (joystick center zone)
-	if (speed > 0)
-	{
-		motor1.setSpeed(speed);
-		motor1.step(direction);
+		StepsToDo = Serial.parseInt();
+		Serial.println(StepsToDo);
 	}
 
-	// MOTOR 2 CONTROL
-	speed = 0;
-	direction = 1;
-	position = analogRead(2);
-
-	if (position > 562 and digitalRead(4) == HIGH)
+	if(StepsToDo > 0)
 	{
-		speed = map(position, 562, 1023, 0, 10);
+		digitalWrite(PULSE_PIN, HIGH);
+		delayMicroseconds(DELAY_US);
+		digitalWrite(PULSE_PIN, LOW);
+		delayMicroseconds(DELAY_US);
+
+		StepsToDo--;
 	}
-
-	if (position < 462 and digitalRead(5) == HIGH)
+	else if(StepsToDo == -1)
 	{
-		speed = map(position, 0, 462, 10, 0);
-		direction = -1;
+		digitalWrite(PULSE_PIN, HIGH);
+		delayMicroseconds(DELAY_US/2);
+		digitalWrite(PULSE_PIN, LOW);
+		delayMicroseconds(DELAY_US);
+
+		if(digitalRead(START_MOVE) == LOW)
+			StepsToDo = 0;
 	}
-
-	if (speed > 0)
+	else
 	{
-		motor2.setSpeed(speed);
-		motor2.step(direction);
+		if(digitalRead(START_MOVE) == HIGH)
+			StepsToDo = -1;
 	}
 }
