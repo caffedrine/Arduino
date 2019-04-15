@@ -6,6 +6,8 @@
 #include "HAL.h"
 #include "IR_Codes.h"
 
+#define DEBUG	1
+
 /* IR Receiver handlers */
 IRrecv irrecv(PIN_IR_RECEIVER);
 decode_results results;
@@ -23,7 +25,8 @@ LiquidCrystal lcd(PIN_LCD_RS, PIN_LCD_EN, PIN_LCD_D4, PIN_LCD_D5, PIN_LCD_D6, PI
 bool MOTION_SENSOR_ENABLED = true;
 
 /* Rooms status (on/off) */
-uint8_t RoomsStatusLights[8] = {0};
+uint8_t RoomsStatusLights[8] =
+{ 0 };
 
 /* Garage door open/close timeout */
 unsigned long GarageMillisTimeout = millis();
@@ -77,7 +80,7 @@ void onIrKeyRecv(unsigned long keyVal)
 {
 	/* Debouncing buttons presses */
 	static unsigned long PrevMillis = 0;
-	if (millis() - PrevMillis >= 100)
+	if( millis() - PrevMillis >= 100 )
 	{
 		PrevMillis = millis();
 	}
@@ -86,47 +89,62 @@ void onIrKeyRecv(unsigned long keyVal)
 		return;
 	}
 
-	static int i = 0;
-	Serial.print(i++);
-	Serial.print(". IR recv: ");
-	Serial.println(keyVal);
+	#if DEBUG == 1
+		static int i = 0;
+		Serial.print(i++);
+		Serial.print(". IR recv: ");
+		Serial.println(keyVal);
+	#endif
 
-	if (keyVal == PHONE_IR_CODE_KEY_1 || keyVal == RC_IR_CODE_KEY_1)
+	if( keyVal == PHONE_IR_CODE_KEY_CH_PLUS || keyVal == RC_IR_CODE_KEY_CH_PLUS )
+	{
+		GarageMillisTimeout = millis();
+		motor.SetDirection(X11Stepper::DIRECTION::FORWARD);
+		return;
+	}
+	else if( keyVal == PHONE_IR_CODE_KEY_CH_MINUS || keyVal == RC_IR_CODE_KEY_CH_MINUS )
+	{
+		GarageMillisTimeout = millis();
+		motor.SetDirection(X11Stepper::DIRECTION::BACKWARD);
+		return;
+	}
+
+	if( keyVal == PHONE_IR_CODE_KEY_1 || keyVal == RC_IR_CODE_KEY_1 )
 	{
 		digitalToggle(PIN_LIGHT_ROOM_1);
 		RoomsStatusLights[0] = digitalRead(PIN_LIGHT_ROOM_1);
 	}
-	else if (keyVal == PHONE_IR_CODE_KEY_2 || keyVal == RC_IR_CODE_KEY_2)
+	else if( keyVal == PHONE_IR_CODE_KEY_2 || keyVal == RC_IR_CODE_KEY_2 )
 	{
 		digitalToggle(PIN_LIGHT_ROOM_2);
 		RoomsStatusLights[1] = digitalRead(PIN_LIGHT_ROOM_2);
 	}
-	else if (keyVal == PHONE_IR_CODE_KEY_3 || keyVal == RC_IR_CODE_KEY_3)
+	else if( keyVal == PHONE_IR_CODE_KEY_3 || keyVal == RC_IR_CODE_KEY_3 )
 	{
 		digitalToggle(PIN_LIGHT_ROOM_3);
 		RoomsStatusLights[2] = digitalRead(PIN_LIGHT_ROOM_3);
 	}
-	else if (keyVal == PHONE_IR_CODE_KEY_4 || keyVal == RC_IR_CODE_KEY_4)
+	else if( keyVal == PHONE_IR_CODE_KEY_4 || keyVal == RC_IR_CODE_KEY_4 )
 	{
 		digitalToggle(PIN_LIGHT_ROOM_4);
 		RoomsStatusLights[3] = digitalRead(PIN_LIGHT_ROOM_4);
 	}
-	else if (keyVal == PHONE_IR_CODE_KEY_5 || keyVal == RC_IR_CODE_KEY_5)
+	else if( keyVal == PHONE_IR_CODE_KEY_5 || keyVal == RC_IR_CODE_KEY_5 )
 	{
 		digitalToggle(PIN_LIGHT_ROOM_5);
 		RoomsStatusLights[4] = digitalRead(PIN_LIGHT_ROOM_5);
 	}
-	else if (keyVal == PHONE_IR_CODE_KEY_6 || keyVal == RC_IR_CODE_KEY_6)
+	else if( keyVal == PHONE_IR_CODE_KEY_6 || keyVal == RC_IR_CODE_KEY_6 )
 	{
 		digitalToggle(PIN_LIGHT_ROOM_6);
 		RoomsStatusLights[5] = digitalRead(PIN_LIGHT_ROOM_6);
 	}
-	else if (keyVal == PHONE_IR_CODE_KEY_7 || keyVal == RC_IR_CODE_KEY_7)
+	else if( keyVal == PHONE_IR_CODE_KEY_7 || keyVal == RC_IR_CODE_KEY_7 )
 	{
 		digitalToggle(PIN_LIGHT_ROOM_7);
 		RoomsStatusLights[6] = digitalRead(PIN_LIGHT_ROOM_7);
 	}
-	else if (keyVal == PHONE_IR_CODE_KEY_8 || keyVal == RC_IR_CODE_KEY_8)
+	else if( keyVal == PHONE_IR_CODE_KEY_8 || keyVal == RC_IR_CODE_KEY_8 )
 	{
 		digitalToggle(PIN_LIGHT_ROOM_8);
 		RoomsStatusLights[7] = digitalRead(PIN_LIGHT_ROOM_8);
@@ -135,25 +153,18 @@ void onIrKeyRecv(unsigned long keyVal)
 	{
 		MOTION_SENSOR_ENABLED = !MOTION_SENSOR_ENABLED;
 		digitalWrite(PIN_OUTDOOR_LIGHT, LOW);
-//		Serial.print("Motion detection: ");
-//		Serial.println(((MOTION_SENSOR_ENABLED)?("ENABLED"):("DISABLED")));
+#if DEBUG == 1
+		Serial.print("Motion detection: ");
+		Serial.println(((MOTION_SENSOR_ENABLED)?("ENABLED"):("DISABLED")));
+#endif
 	}
-	else if( keyVal == PHONE_IR_CODE_KEY_CH_PLUS || keyVal == RC_IR_CODE_KEY_CH_PLUS)
+	else
 	{
-		GarageMillisTimeout = millis();
-		motor.SetDirection(X11Stepper::DIRECTION::FORWARD);
 		return;
 	}
-	else if( keyVal == PHONE_IR_CODE_KEY_CH_MINUS || RC_IR_CODE_KEY_CH_MINUS)
-	{
-		GarageMillisTimeout = millis();
-		motor.SetDirection(X11Stepper::DIRECTION::BACKWARD);
-		return;
-	}
-
 
 	String buffer = "";
-	for(int i = 0; i < 8; i++)
+	for (int i = 0; i < 8; i++)
 	{
 		if( RoomsStatusLights[i] == 0 )
 			buffer += "/";
@@ -167,7 +178,7 @@ void onIrKeyRecv(unsigned long keyVal)
 	lcd.print(buffer);
 
 	lcd.setCursor(0, 1);
-	if(MOTION_SENSOR_ENABLED)
+	if( MOTION_SENSOR_ENABLED )
 		lcd.print("M_detector: ON");
 	else
 		lcd.print("M_detector: OFF");
@@ -176,7 +187,7 @@ void onIrKeyRecv(unsigned long keyVal)
 void Task_IR()
 {
 	/* Process IR received command */
-	if (irrecv.decode(&results))
+	if( irrecv.decode(&results) )
 	{
 		onIrKeyRecv(results.value);
 		irrecv.resume();
@@ -186,7 +197,7 @@ void Task_IR()
 void Task_MotionDetection()
 {
 	/* Just exit this task is motion detection is not enabled */
-	if (MOTION_SENSOR_ENABLED == false)
+	if( MOTION_SENSOR_ENABLED == false )
 	{
 		return;
 	}
@@ -195,12 +206,12 @@ void Task_MotionDetection()
 	static bool CurrPresence, PrevPresence;
 
 	CurrPresence = digitalRead(PIN_PRESENCE_SENSOR);
-	if (CurrPresence != PrevPresence)
+	if( CurrPresence != PrevPresence )
 	{
 		Serial.print(i++);
 		Serial.print(". ");
 		PrevPresence = CurrPresence;
-		if(CurrPresence == HIGH)
+		if( CurrPresence == HIGH )
 		{
 			Serial.println("Presence detected!");
 			digitalWrite(PIN_OUTDOOR_LIGHT, HIGH);
@@ -218,7 +229,7 @@ void Task_Garage()
 	static unsigned long PrevStepTimestamp = 0;
 	if( millis() - GarageMillisTimeout < 200 )
 	{
-		if( millis() - PrevStepTimestamp >=2 )
+		if( millis() - PrevStepTimestamp >= 2 )
 		{
 			PrevStepTimestamp = millis();
 			motor.StepNext();
@@ -238,3 +249,4 @@ void loop()
 	Task_Garage();
 	Task_UpdateLcd();
 }
+
