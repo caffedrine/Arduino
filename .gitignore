@@ -25,5 +25,6 @@
 */*.opensdf
 */*.sln
 */build/
+*/spec.d
 *~
 
