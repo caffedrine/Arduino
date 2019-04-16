@@ -8,15 +8,18 @@
 
 #define DEBUG	1
 
+/* LCD config */
+LiquidCrystal lcd(PIN_LCD_RS, PIN_LCD_EN, PIN_LCD_D4, PIN_LCD_D5, PIN_LCD_D6, PIN_LCD_D7);
+/* LCD buffers - empty by default*/
+char LCD_Buffer_Line_0[16] = { ' ' };
+char LCD_Buffer_Line_1[16] = { ' ' };
+
 /* IR Receiver handlers */
 IRrecv irrecv(PIN_IR_RECEIVER);
 decode_results results;
 
 /* Motor handler */
 X11Stepper motor(PIN_STEPPER_IN1, PIN_STEPPER_IN2, PIN_STEPPER_IN3, PIN_STEPPER_IN4);
-
-/* LCD config */
-LiquidCrystal lcd(PIN_LCD_RS, PIN_LCD_EN, PIN_LCD_D4, PIN_LCD_D5, PIN_LCD_D6, PIN_LCD_D7);
 
 /* Helpers */
 #define digitalToggle(pin)	digitalWrite(pin, !digitalRead(pin))
@@ -25,8 +28,7 @@ LiquidCrystal lcd(PIN_LCD_RS, PIN_LCD_EN, PIN_LCD_D4, PIN_LCD_D5, PIN_LCD_D6, PI
 bool MOTION_SENSOR_ENABLED = true;
 
 /* Rooms status (on/off) */
-uint8_t RoomsStatusLights[8] =
-{ 0 };
+uint8_t RoomsStatusLights[8] = { 0 };
 
 /* Garage door open/close timeout */
 unsigned long GarageMillisTimeout = millis();
@@ -42,13 +44,6 @@ void setup()
 	pinMode(PIN_LIGHT_ROOM_6, OUTPUT);
 	pinMode(PIN_LIGHT_ROOM_7, OUTPUT);
 	pinMode(PIN_LIGHT_ROOM_8, OUTPUT);
-
-	pinMode(PIN_LCD_D4, OUTPUT);
-	pinMode(PIN_LCD_D5, OUTPUT);
-	pinMode(PIN_LCD_D6, OUTPUT);
-	pinMode(PIN_LCD_D7, OUTPUT);
-	pinMode(PIN_LCD_RS, OUTPUT);
-	pinMode(PIN_LCD_EN, OUTPUT);
 
 	pinMode(PIN_SKELETON_LIGHTS, OUTPUT);
 	pinMode(PIN_OUTDOOR_LIGHT, OUTPUT);
@@ -79,8 +74,10 @@ void setup()
 void onIrKeyRecv(unsigned long keyVal)
 {
 	/* Debouncing buttons presses */
+	static unsigned long LastKey = 0;
+	static const unsigned int IR_DEBOUNCING_MS = 150;
 	static unsigned long PrevMillis = 0;
-	if( millis() - PrevMillis >= 100 )
+	if( millis() - PrevMillis >= IR_DEBOUNCING_MS )
 	{
 		PrevMillis = millis();
 	}
@@ -89,12 +86,20 @@ void onIrKeyRecv(unsigned long keyVal)
 		return;
 	}
 
-	#if DEBUG == 1
-		static int i = 0;
-		Serial.print(i++);
-		Serial.print(". IR recv: ");
-		Serial.println(keyVal);
-	#endif
+	/* Is it the last key which continues to be presses? */
+	if( keyVal == PHONE_IR_CODE_KEY_LAST || keyVal == RC_IR_CODE_KEY_LAST )
+	{
+		keyVal = LastKey;
+	}
+	else
+	{
+		LastKey = keyVal;
+	}
+
+#if DEBUG == 1
+	Serial.print("IR recv: ");
+	Serial.println(keyVal);
+#endif
 
 	if( keyVal == PHONE_IR_CODE_KEY_CH_PLUS || keyVal == RC_IR_CODE_KEY_CH_PLUS )
 	{
@@ -149,39 +154,34 @@ void onIrKeyRecv(unsigned long keyVal)
 		digitalToggle(PIN_LIGHT_ROOM_8);
 		RoomsStatusLights[7] = digitalRead(PIN_LIGHT_ROOM_8);
 	}
-	else if( keyVal == PHOME_IR_CODE_KEY_OUTDOOR_LIGHTS_ENABLE || keyVal == RC_IR_CODE_KEY_OUTDOOR_LIGHTS_ENABLE )
+	else if( keyVal == PHONE_IR_CODE_KEY_OUTDOOR_LIGHTS_ENABLE || keyVal == RC_IR_CODE_KEY_OUTDOOR_LIGHTS_ENABLE )
 	{
 		MOTION_SENSOR_ENABLED = !MOTION_SENSOR_ENABLED;
 		digitalWrite(PIN_OUTDOOR_LIGHT, LOW);
 #if DEBUG == 1
 		Serial.print("Motion detection: ");
-		Serial.println(((MOTION_SENSOR_ENABLED)?("ENABLED"):("DISABLED")));
+		Serial.println(((MOTION_SENSOR_ENABLED) ? ("ENABLED") : ("DISABLED")));
 #endif
 	}
 	else
 	{
+		/* Do not debounce invalid codes */
+		PrevMillis -= (IR_DEBOUNCING_MS + 1);
 		return;
 	}
 
-	String buffer = "";
-	for (int i = 0; i < 8; i++)
-	{
-		if( RoomsStatusLights[i] == 0 )
-			buffer += "/";
-		else
-			buffer += "0";
-		buffer += " ";
-	}
+#if DEBUG == 1
+	static int i = 0;
+	Serial.print(i++);
+	Serial.print(". IR recv: ");
+	Serial.println(keyVal);
+#endif
 
-	lcd.clear();
-	lcd.setCursor(0, 0);
-	lcd.print(buffer);
+	memset(LCD_Buffer_Line_0, ' ', sizeof(LCD_Buffer_Line_0));
+	sprintf(LCD_Buffer_Line_0, "%s", RoomsStatusLights);
 
-	lcd.setCursor(0, 1);
-	if( MOTION_SENSOR_ENABLED )
-		lcd.print("M_detector: ON");
-	else
-		lcd.print("M_detector: OFF");
+	memset(LCD_Buffer_Line_1, ' ', sizeof(LCD_Buffer_Line_1));
+	sprintf(LCD_Buffer_Line_1, "M_detector: %s", MOTION_SENSOR_ENABLED ? "ON" : "OFF");
 }
 
 void Task_IR()
@@ -239,7 +239,17 @@ void Task_Garage()
 
 void Task_UpdateLcd()
 {
-
+	static unsigned long PrevUpdateTimestamp = 0;
+	if( millis() - PrevUpdateTimestamp > 50 ) /* 50 Hz frequency should be enough */
+	{
+		PrevUpdateTimestamp = millis();
+		/* Update LCD display every 50ms */
+		lcd.clear();
+		lcd.setCursor(0, 0);
+		lcd.write(LCD_Buffer_Line_0, sizeof(LCD_Buffer_Line_0));
+		lcd.setCursor(0, 1);
+		lcd.write(LCD_Buffer_Line_1, sizeof(LCD_Buffer_Line_1));
+	}
 }
 
 void loop()

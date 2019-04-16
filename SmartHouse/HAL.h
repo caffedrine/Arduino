@@ -23,16 +23,16 @@
 #define PIN_STEPPER_IN3				42
 #define PIN_STEPPER_IN4				43
 
-#define PIN_LCD_D4					24
-#define PIN_LCD_D5					25
-#define PIN_LCD_D6					26
-#define PIN_LCD_D7					27
 #define PIN_LCD_RS					22
 #define PIN_LCD_EN					23
+#define PIN_LCD_D4					2
+#define PIN_LCD_D5					3
+#define PIN_LCD_D6					4
+#define PIN_LCD_D7					5
 
 #define PIN_SKELETON_LIGHTS			38
 
-#define PIN_PRESENCE_SENSOR			3
+#define PIN_PRESENCE_SENSOR			50
 #define PIN_DAYLIGHT_SENSOR			44
 #define PIN_IR_RECEIVER				12
 #define PIN_OUTDOOR_LIGHT			51
