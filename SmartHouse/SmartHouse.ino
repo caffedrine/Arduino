@@ -6,7 +6,7 @@
 #include "HAL.h"
 #include "IR_Codes.h"
 
-#define DEBUG	1
+#define DEBUG	0
 
 /* LCD config */
 LiquidCrystal lcd(PIN_LCD_RS, PIN_LCD_EN, PIN_LCD_D4, PIN_LCD_D5, PIN_LCD_D6, PIN_LCD_D7);
