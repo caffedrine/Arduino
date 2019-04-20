@@ -15,11 +15,11 @@
 #define ERR_PRINTLN(arg)	(Serial.println(arg))
 #define ERR_PRINT(arg)		(Serial.print(arg))
 
-typedef enum Status
+typedef enum
 {
     ERR_OK = 0,
     ERR_NOK = 1
-}
+}status_t;
 
 #define Vfb_DigitalWrite(pin, level)	digitalWrite(pin, level)
 #define Vfb_DigitalRead(pin)			digitalRead(pin)

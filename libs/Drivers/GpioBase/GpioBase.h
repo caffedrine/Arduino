@@ -21,6 +21,7 @@ namespace Drivers
 		void Set();
 		void Clear();
 		void Toggle();
+		void Write(uint8_t LogicalLevel);
 		uint8_t Read();
 
 		virtual ~GpioBase();

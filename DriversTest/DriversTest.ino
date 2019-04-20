@@ -6,14 +6,23 @@
 using namespace Drivers;
 
 GpioBase led(13, OUTPUT);
+HC595 reg(2, 3, 4, 2);
 
 void setup()
 {
 	Serial.begin(115200);
+	reg.ClearAll();
 }
 
 void loop()
 {
 	led.Toggle();
-	delay(500);
+
+	uint8_t data[2];
+	data[0] = 0b01010101;
+	data[1] = 0b10101010;
+	reg.WriteRaw(data, 2);
+	reg.Update();
+
+	delay(50);
 }
