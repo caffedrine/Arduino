@@ -8,7 +8,7 @@
 #include "IR_Codes.h"
 #include "PinMap.h"
 
-#define DEBUG	0
+#define DEBUG	1
 
 using namespace Drivers;
 
@@ -36,8 +36,6 @@ uint8_t RoomsStatusLights[8] = { 0 };
 
 /* Garage door open/close timeout */
 unsigned long GarageMillisTimeout = millis();
-
-LED led(7);
 
 void setup()
 {
@@ -259,8 +257,6 @@ void Task_Garage()
 
 ISR(TIMER3_OVF_vect)
 {
-	led.Toggle();
-
 	TCNT3 = 60000;            // preload timer
 	Task_Garage();
 }

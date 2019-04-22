@@ -10,7 +10,7 @@
 
 #include "Arduino.h"
 
-#define DEBUG 1
+#define DRIVERS_DEBUG 1
 
 #define ERR_PRINTLN(arg)	(Serial.println(arg))
 #define ERR_PRINT(arg)		(Serial.print(arg))
