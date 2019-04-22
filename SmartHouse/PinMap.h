@@ -5,8 +5,8 @@
  *      Author: curiosul
  */
 
-#ifndef HAL_H_
-#define HAL_H_
+#ifndef PINMAP_H_
+#define PINMAP_H_
 
 /* PINS MAPPING */
 #define PIN_LIGHT_ROOM_1			28
@@ -37,4 +37,4 @@
 #define PIN_IR_RECEIVER				12
 #define PIN_OUTDOOR_LIGHT			51
 
-#endif /* HAL_H_ */
+#endif /* PINMAP_H_ */

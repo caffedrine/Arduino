@@ -2,11 +2,15 @@
 #include <X113647Stepper.h>
 #include <IRremote.h>
 #include <LiquidCrystal.h>
+#include <TimerOne.h>
+#include <LED.h>
 
-#include "HAL.h"
 #include "IR_Codes.h"
+#include "PinMap.h"
 
 #define DEBUG	0
+
+using namespace Drivers;
 
 /* LCD config */
 LiquidCrystal lcd(PIN_LCD_RS, PIN_LCD_EN, PIN_LCD_D4, PIN_LCD_D5, PIN_LCD_D6, PIN_LCD_D7);
@@ -32,6 +36,8 @@ uint8_t RoomsStatusLights[8] = { 0 };
 
 /* Garage door open/close timeout */
 unsigned long GarageMillisTimeout = millis();
+
+LED led(7);
 
 void setup()
 {
@@ -69,6 +75,16 @@ void setup()
 	lcd.print("   WELCOME TO");
 	lcd.setCursor(0, 1);
 	lcd.print("  SMART HOUSE!");
+
+	/* Timer5 for uniform motor movement */
+	noInterrupts();
+	TCCR3A = 0;
+	TCCR3B = 0;
+	TCNT3 = 60000;            // preload timer 65536-16MHz/256/2Hz
+	TCCR3B |= (1 << CS11);    // 256 prescaler
+	TIMSK3 |= (1 << TOIE1);   // enable timer overflow interrupt
+	interrupts();
+
 }
 
 void onIrKeyRecv(unsigned long keyVal)
@@ -196,7 +212,7 @@ void Task_IR()
 
 void Task_MotionDetection()
 {
-	/* Just exit this task is motion detection is not enabled */
+	/* Just exit this task if motion detection is not enabled */
 	if( MOTION_SENSOR_ENABLED == false )
 	{
 		return;
@@ -227,7 +243,7 @@ void Task_MotionDetection()
 void Task_Garage()
 {
 	static unsigned long PrevStepTimestamp = 0;
-	if( millis() - GarageMillisTimeout < 200 )
+	if( millis() - GarageMillisTimeout < 300 )
 	{
 		if( millis() - PrevStepTimestamp >= 2 )
 		{
@@ -235,6 +251,18 @@ void Task_Garage()
 			motor.StepNext();
 		}
 	}
+	else
+	{
+		motor.Stop();
+	}
+}
+
+ISR(TIMER3_OVF_vect)
+{
+	led.Toggle();
+
+	TCNT3 = 60000;            // preload timer
+	Task_Garage();
 }
 
 void Task_UpdateLcd()
@@ -256,7 +284,6 @@ void loop()
 {
 	Task_IR();
 	Task_MotionDetection();
-	Task_Garage();
 	Task_UpdateLcd();
 }
 
