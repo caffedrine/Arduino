@@ -30,7 +30,7 @@ namespace Drivers
 		void Toggle();
 		STATE GetState();
 	private:
-		uint8_t _Pin = 0;
+		uint8_t _PinNo = 0;
 	};
 
 } /* namespace Drivers */

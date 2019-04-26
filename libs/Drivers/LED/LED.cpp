@@ -10,8 +10,9 @@
 namespace Drivers
 {
 
-	LED::LED(uint8_t Pin) : _Pin(Pin)
+	LED::LED(uint8_t Pin) : _PinNo(Pin)
 	{
+		Vfb_SetPinMode(this->_PinNo, OUTPUT);
 		this->Off();
 	}
 
@@ -22,22 +23,49 @@ namespace Drivers
 
 	void LED::On()
 	{
-		Vfb_DigitalWrite(this->_Pin, HIGH);
+		if(this->_PinNo <= 0 )
+		{
+			#if DRIVERS_DEBUG == 1
+				ERR_PRINT("[ERR][LED] On(): Invalid pin or not initialized: ");
+				ERR_PRINTLN(this->_PinNo);
+			#endif
+			return;
+		}
+
+		Vfb_DigitalWrite(this->_PinNo, HIGH);
 	}
 
 	void LED::Off()
 	{
-		Vfb_DigitalWrite(this->_Pin, LOW);
+		if(this->_PinNo <= 0 )
+		{
+			#if DRIVERS_DEBUG == 1
+				ERR_PRINT("[ERR][LED] Off(): Invalid pin or not initialized: ");
+				ERR_PRINTLN(this->_PinNo);
+			#endif
+			return;
+		}
+
+		Vfb_DigitalWrite(this->_PinNo, LOW);
 	}
 
 	void LED::Toggle()
 	{
-		Vfb_DigitalToggle(this->_Pin);
+		if(this->_PinNo <= 0 )
+		{
+			#if DRIVERS_DEBUG == 1
+				ERR_PRINT("[ERR][LED] Toggle(): Invalid pin or not initialized: ");
+				ERR_PRINTLN(this->_PinNo);
+			#endif
+			return;
+		}
+
+		Vfb_DigitalToggle(this->_PinNo);
 	}
 
 	LED::STATE LED::GetState()
 	{
-		if( Vfb_DigitalRead(this->_Pin) == HIGH )
+		if( Vfb_DigitalRead(this->_PinNo) == HIGH )
 		{
 			return LED::STATE::ON;
 		}

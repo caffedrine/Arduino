@@ -1,30 +1,45 @@
-#include "Arduino.h"
-
-#include "GpioBase.h"
-#include "HC595.h"
+#include <Arduino.h>
+#include <GpioBase.h>
+#include <BasicLCD.h>
 
 using namespace Drivers;
 
 GpioBase led(13, OUTPUT);
-HC595 reg(2, 3, 4, 2);
+BasicLCD lcd(22, 23, 24, 25, 26, 27);
+
 
 void setup()
 {
 	Serial.begin(115200);
 
 	/* Set initial states */
-	uint8_t data[2];
-	data[0] = 0b01010101;
-	data[1] = 0b10101010;
-	reg.WriteRaw(data, 2);
+	lcd.Init(16,  2);
 }
+
+static unsigned long PrevMillis = 0;
+int i = 0;
 
 void loop()
 {
-	led.Toggle();
+	if( millis() - PrevMillis >= 200 )
+	{
+		PrevMillis = millis();
 
-	reg.ToggleAll();
-	reg.Update();
+		lcd.PrintLine(" " + String(++i), 0);
+		lcd.PrintLine(" " + String(i*2), 1);
+	}
 
-	delay(50);
+	Task_UpdateDisplay();
+}
+
+void Task_UpdateDisplay()
+{
+	static unsigned long PrevMillis = 0;
+
+	/* Refresh display every 50 ms */
+	if( millis() - PrevMillis >= 25)
+	{
+		PrevMillis = millis();
+		lcd.Update();
+	}
 }

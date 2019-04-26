@@ -50,7 +50,7 @@ namespace Drivers
 	{
 		if(len > this->_RegsNo)
 		{
-			#if DEBUG == 1
+			#if DRIVERS_DEBUG == 1
 				ERR_PRINT("[ERR][HC595] WriteRaw(): Invalid data length: ");
 				ERR_PRINTLN(len);
 			#endif
@@ -68,7 +68,7 @@ namespace Drivers
 	{
 		if(RegIndex >= this->_RegsNo || (uint8_t)bit >= 8)
 		{
-			#if DEBUG == 1
+			#if DRIVERS_DEBUG == 1
 				ERR_PRINT("[ERR][HC595] SetBit(): Invalid register index: ");
 				ERR_PRINTLN(RegIndex);
 			#endif
@@ -81,7 +81,7 @@ namespace Drivers
 	{
 		if(RegIndex >= this->_RegsNo || (uint8_t)bit >= 8)
 		{
-			#if DEBUG == 1
+			#if DRIVERS_DEBUG == 1
 				ERR_PRINT("[ERR][HC595] ClearBit(): Invalid register index: ");
 				ERR_PRINTLN(RegIndex);
 			#endif
@@ -94,7 +94,7 @@ namespace Drivers
 	{
 		if(RegIndex >= this->_RegsNo || (uint8_t)bit >= 8)
 		{
-			#if DEBUG == 1
+			#if DRIVERS_DEBUG == 1
 				ERR_PRINT("[ERR][HC595] ToggleBit(): Invalid register index: ");
 				ERR_PRINTLN(RegIndex);
 			#endif
@@ -107,7 +107,7 @@ namespace Drivers
 	{
 		if(RegIdx >= this->_RegsNo || (uint8_t)bit >= 8)
 		{
-			#if DEBUG == 1
+			#if DRIVERS_DEBUG == 1
 				ERR_PRINT("[ERR][HC595] WriteBit(): Invalid register index: ");
 				ERR_PRINTLN(RegIdx);
 			#endif
@@ -128,7 +128,7 @@ namespace Drivers
 	{
 		if(RegIndex >= this->_RegsNo)
 		{
-			#if DEBUG == 1
+			#if DRIVERS_DEBUG == 1
 				ERR_PRINT("[ERR][HC595] WriteByte(): Invalid register index: ");
 				ERR_PRINTLN(RegIndex);
 			#endif
@@ -141,7 +141,7 @@ namespace Drivers
 	{
 		if(RegIdx >= this->_RegsNo)
 		{
-			#if DEBUG == 1
+			#if DRIVERS_DEBUG == 1
 				ERR_PRINT("[ERR][HC595] ToggleByte(): Invalid register index: ");
 				ERR_PRINTLN(RegIdx);
 			#endif
@@ -155,7 +155,7 @@ namespace Drivers
 	{
 		if(RegIdx >= this->_RegsNo)
 		{
-			#if DEBUG == 1
+			#if DRIVERS_DEBUG == 1
 				ERR_PRINT("[ERR][HC595] ClearByte(): Invalid register index: ");
 				ERR_PRINTLN(RegIdx);
 			#endif
@@ -169,7 +169,7 @@ namespace Drivers
 	{
 		if(RegIdx >= this->_RegsNo)
 		{
-			#if DEBUG == 1
+			#if DRIVERS_DEBUG == 1
 				ERR_PRINT("[ERR][HC595] SetByte(): Invalid register index: ");
 				ERR_PRINTLN(RegIdx);
 			#endif
