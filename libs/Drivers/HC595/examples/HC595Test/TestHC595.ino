@@ -1,13 +1,3 @@
-/*
- * TestHC595.h
- *
- *  Created on: Apr 20, 2019
- *      Author: curiosul
- */
-
-#ifndef TESTHC595_H_
-#define TESTHC595_H_
-
 #include "Arduino.h"
 
 #include "GpioBase.h"
@@ -38,5 +28,3 @@ void loop()
 
 	delay(50);
 }
-
-#endif /* TESTHC595_H_ */
