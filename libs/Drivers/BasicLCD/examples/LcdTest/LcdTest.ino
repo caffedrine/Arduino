@@ -1,48 +1,45 @@
 #include <Arduino.h>
-#include <GpioBase.h>
 #include <BasicLCD.h>
-#include <LED.h>
 
 using namespace Drivers;
 
-GpioBase led(13, OUTPUT);
-BasicLCD lcd(22, 23, 24, 25, 26, 27);
+#define PIN_LCD_D4					24
+#define PIN_LCD_D5					25
+#define PIN_LCD_D6					26
+#define PIN_LCD_D7					27
+#define PIN_LCD_RS					22
+#define PIN_LCD_EN					23
 
+BasicLCD lcd(PIN_LCD_RS, PIN_LCD_EN, PIN_LCD_D4, PIN_LCD_D5, PIN_LCD_D6, PIN_LCD_D7);
 
 void setup()
 {
 	Serial.begin(115200);
+	lcd.Init(16, 2);
 
-	/* Set initial states */
-	lcd.Init(16,  2);
+	lcd.PrintLine("  HELLO", 0);
+	lcd.PrintLine("   WORLD", 1);
 }
 
-static unsigned long PrevMillis = 0;
-int i = 0;
+unsigned long i = 0, j = 0;
 
 void loop()
 {
-	if( millis() - PrevMillis >= 500 )
+	static unsigned long PrevMillisI = 0, PrevMillisJ = 0;
+
+	if(millis() - PrevMillisI >= 1000)
 	{
-		PrevMillis = millis();
-
-		lcd.PrintLine(" " + String(++i), 0);
-		lcd.PrintLine(" " + String(i*2), 1);
-
-		led.Toggle();
+		PrevMillisI = millis();
+		i++;
+		lcd.PrintLine( String(i), 0);
 	}
 
-	Task_UpdateDisplay();
-}
-
-void Task_UpdateDisplay()
-{
-	static unsigned long PrevMillis = 0;
-
-	/* Refresh display every 50 ms */
-	if( millis() - PrevMillis >= 25)
+	if(millis() - PrevMillisJ >= 500)
 	{
-		PrevMillis = millis();
-		lcd.Update();
+		PrevMillisJ = millis();
+		j+=2;
+		lcd.PrintLine( String(j), 1);
 	}
+
+	lcd.Update();
 }

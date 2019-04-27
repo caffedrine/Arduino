@@ -8,8 +8,8 @@
 #ifndef LED_H_
 #define LED_H_
 
-#include "HAL.h"
 #include "GpioBase.h"
+#include "HAL.h"
 
 namespace Drivers
 {

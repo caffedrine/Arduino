@@ -13,12 +13,6 @@
 
 namespace Drivers
 {
-	enum class LcdState
-	{
-		CLEAR,
-		WRITE
-	};
-
 	class BasicLCD : public LiquidCrystal
 	{
 	public:
@@ -27,10 +21,10 @@ namespace Drivers
 
 		void Init(uint8_t cols, uint8_t lines);
 		void PrintLine(String str, uint8_t line);
+		void PrintLine(uint8_t *str, uint8_t len, uint8_t line);
 		void Update();
 
 	private:
-		LcdState _CurrState = LcdState::CLEAR;
 		String *_LinesBuffer = NULL;
 		uint8_t _Lines = 0, _Cols = 0;
 	};
