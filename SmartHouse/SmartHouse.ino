@@ -5,6 +5,7 @@
 #include <TimerOne.h>
 #include <LED.h>
 #include <BasicLCD.h>
+#include <GpioBase.h>
 
 #include "IR_Codes.h"
 #include "PinMap.h"
@@ -22,38 +23,34 @@ decode_results results;
 
 /* Motor handler */
 X11Stepper motor(PIN_STEPPER_IN1, PIN_STEPPER_IN2, PIN_STEPPER_IN3, PIN_STEPPER_IN4);
-
-/* Helpers */
-#define digitalToggle(pin)	digitalWrite(pin, !digitalRead(pin))
+bool MotorInitialized = false;
 
 /* Globals */
 bool MOTION_SENSOR_ENABLED = false;
 
-/* Rooms status (on/off) */
-uint8_t RoomsStatusLights[8] = { 0 };
+/* rooms handlers */
+LED Room1(PIN_LIGHT_ROOM_1);
+LED Room2(PIN_LIGHT_ROOM_2);
+LED Room3(PIN_LIGHT_ROOM_3);
+LED Room4(PIN_LIGHT_ROOM_4);
+LED Room5(PIN_LIGHT_ROOM_5);
+LED Room6(PIN_LIGHT_ROOM_6);
+LED Room7(PIN_LIGHT_ROOM_7);
+LED Room8(PIN_LIGHT_ROOM_8);
+
+/* Other GPIO handlers */
+LED SkeletonLight(PIN_SKELETON_LIGHTS);
+LED OutdoorLight(PIN_OUTDOOR_LIGHT);
+GpioBase PresenceSensor(PIN_PRESENCE_SENSOR, INPUT);
+GpioBase DaylightSensor(PIN_DAYLIGHT_SENSOR, INPUT);
 
 /* Garage door open/close timeout */
 unsigned long GarageMillisTimeout = millis();
 
 void setup()
 {
-	/* Configure OUTPUT pins */
-	pinMode(PIN_LIGHT_ROOM_1, OUTPUT);
-	pinMode(PIN_LIGHT_ROOM_2, OUTPUT);
-	pinMode(PIN_LIGHT_ROOM_3, OUTPUT);
-	pinMode(PIN_LIGHT_ROOM_4, OUTPUT);
-	pinMode(PIN_LIGHT_ROOM_5, OUTPUT);
-	pinMode(PIN_LIGHT_ROOM_6, OUTPUT);
-	pinMode(PIN_LIGHT_ROOM_7, OUTPUT);
-	pinMode(PIN_LIGHT_ROOM_8, OUTPUT);
-
-	pinMode(PIN_SKELETON_LIGHTS, OUTPUT);
-	pinMode(PIN_OUTDOOR_LIGHT, OUTPUT);
-
-	/* Configure INPUT pins */
-	pinMode(PIN_PRESENCE_SENSOR, INPUT);
-	pinMode(PIN_DAYLIGHT_SENSOR, INPUT);
-	pinMode(PIN_IR_RECEIVER, INPUT);
+	/* Init serial for debugging */
+	Serial.begin(115200);
 
 	/* Init IR */
 	irrecv.enableIRIn();
@@ -61,9 +58,6 @@ void setup()
 
 	/* Init LCD  - 16 rows, 2 columns */
 	lcd.Init(16, 2);
-
-	/* Init serial for debugging */
-	Serial.begin(115200);
 
 	/* Init column 1 with motion detection */
 	lcd.PrintLine("   WELCOME TO", 0);
@@ -77,7 +71,6 @@ void setup()
 	TCCR3B |= (1 << CS11);    // 256 prescaler
 	TIMSK3 |= (1 << TOIE1);   // enable timer overflow interrupt
 	interrupts();
-
 }
 
 void onIrKeyRecv(unsigned long keyVal)
@@ -105,72 +98,67 @@ void onIrKeyRecv(unsigned long keyVal)
 		LastKey = keyVal;
 	}
 
-#if DEBUG == 1
-	Serial.print("IR recv: ");
-	Serial.println(keyVal);
-#endif
+	#if DEBUG == 1
+		Serial.print("IR recv: ");
+		Serial.println(keyVal);
+	#endif
 
 	if( keyVal == PHONE_IR_CODE_KEY_PLUS || keyVal == RC_IR_CODE_KEY_PLUS )
 	{
 		GarageMillisTimeout = millis();
+		MotorInitialized = true;
 		motor.SetDirection(X11Stepper::DIRECTION::BACKWARD);
 		return;
 	}
 	else if( keyVal == PHONE_IR_CODE_KEY_MINUS || keyVal == RC_IR_CODE_KEY_MINUS )
 	{
 		GarageMillisTimeout = millis();
+		MotorInitialized = true;
 		motor.SetDirection(X11Stepper::DIRECTION::FORWARD);
 		return;
 	}
 
 	if( keyVal == PHONE_IR_CODE_KEY_1 || keyVal == RC_IR_CODE_KEY_1 )
 	{
-		digitalToggle(PIN_LIGHT_ROOM_1);
-		RoomsStatusLights[0] = digitalRead(PIN_LIGHT_ROOM_1);
+		Room1.Toggle();
 	}
 	else if( keyVal == PHONE_IR_CODE_KEY_2 || keyVal == RC_IR_CODE_KEY_2 )
 	{
-		digitalToggle(PIN_LIGHT_ROOM_2);
-		RoomsStatusLights[1] = digitalRead(PIN_LIGHT_ROOM_2);
+		Room2.Toggle();
 	}
 	else if( keyVal == PHONE_IR_CODE_KEY_3 || keyVal == RC_IR_CODE_KEY_3 )
 	{
-		digitalToggle(PIN_LIGHT_ROOM_3);
-		RoomsStatusLights[2] = digitalRead(PIN_LIGHT_ROOM_3);
+		Room3.Toggle();
 	}
 	else if( keyVal == PHONE_IR_CODE_KEY_4 || keyVal == RC_IR_CODE_KEY_4 )
 	{
-		digitalToggle(PIN_LIGHT_ROOM_4);
-		RoomsStatusLights[3] = digitalRead(PIN_LIGHT_ROOM_4);
+		Room4.Toggle();
 	}
 	else if( keyVal == PHONE_IR_CODE_KEY_5 || keyVal == RC_IR_CODE_KEY_5 )
 	{
-		digitalToggle(PIN_LIGHT_ROOM_5);
-		RoomsStatusLights[4] = digitalRead(PIN_LIGHT_ROOM_5);
+		Room5.Toggle();
 	}
 	else if( keyVal == PHONE_IR_CODE_KEY_6 || keyVal == RC_IR_CODE_KEY_6 )
 	{
-		digitalToggle(PIN_LIGHT_ROOM_6);
-		RoomsStatusLights[5] = digitalRead(PIN_LIGHT_ROOM_6);
+		Room6.Toggle();
 	}
 	else if( keyVal == PHONE_IR_CODE_KEY_7 || keyVal == RC_IR_CODE_KEY_7 )
 	{
-		digitalToggle(PIN_LIGHT_ROOM_7);
-		RoomsStatusLights[6] = digitalRead(PIN_LIGHT_ROOM_7);
+		Room7.Toggle();
 	}
 	else if( keyVal == PHONE_IR_CODE_KEY_8 || keyVal == RC_IR_CODE_KEY_8 )
 	{
-		digitalToggle(PIN_LIGHT_ROOM_8);
-		RoomsStatusLights[7] = digitalRead(PIN_LIGHT_ROOM_8);
+		Room8.Toggle();
 	}
 	else if( keyVal == PHONE_IR_CODE_KEY_OUTDOOR_LIGHTS_ENABLE || keyVal == RC_IR_CODE_KEY_OUTDOOR_LIGHTS_ENABLE )
 	{
 		MOTION_SENSOR_ENABLED = !MOTION_SENSOR_ENABLED;
-		digitalWrite(PIN_OUTDOOR_LIGHT, LOW);
-#if DEBUG == 1
-		Serial.print("Motion detection: ");
-		Serial.println(((MOTION_SENSOR_ENABLED) ? ("ENABLED") : ("DISABLED")));
-#endif
+		OutdoorLight.Off();
+
+		#if DEBUG == 1
+				Serial.print("Motion detection: ");
+				Serial.println(((MOTION_SENSOR_ENABLED) ? ("ENABLED") : ("DISABLED")));
+		#endif
 	}
 	else
 	{
@@ -179,22 +167,23 @@ void onIrKeyRecv(unsigned long keyVal)
 		return;
 	}
 
-#if DEBUG == 1
-	static int i = 0;
-	Serial.print(i++);
-	Serial.print(". IR recv: ");
-	Serial.println(keyVal);
-#endif
+	#if DEBUG == 1
+		static int i = 0;
+		Serial.print(i++);
+		Serial.print(". IR recv: ");
+		Serial.println(keyVal);
+	#endif
 
+	/* Print data to display */
 	String RoomsStatusStr = "";
-	for( uint8_t i = 0; i < 8; i++)
-	{
-		if( RoomsStatusLights[i] == 0 )
-			RoomsStatusStr += "0";
-		else
-			RoomsStatusStr += "1";
-		RoomsStatusStr += " ";
-	}
+	RoomsStatusStr += ( (Room1.GetState() == LED::STATE::ON)?("1 "):("0 ") );
+	RoomsStatusStr += ( (Room2.GetState() == LED::STATE::ON)?("1 "):("0 ") );
+	RoomsStatusStr += ( (Room3.GetState() == LED::STATE::ON)?("1 "):("0 ") );
+	RoomsStatusStr += ( (Room4.GetState() == LED::STATE::ON)?("1 "):("0 ") );
+	RoomsStatusStr += ( (Room5.GetState() == LED::STATE::ON)?("1 "):("0 ") );
+	RoomsStatusStr += ( (Room6.GetState() == LED::STATE::ON)?("1 "):("0 ") );
+	RoomsStatusStr += ( (Room7.GetState() == LED::STATE::ON)?("1 "):("0 ") );
+	RoomsStatusStr += ( (Room8.GetState() == LED::STATE::ON)?("1 "):("0 ") );
 	lcd.PrintLine( RoomsStatusStr, 0);
 
 	if(MOTION_SENSOR_ENABLED == true)
@@ -224,7 +213,7 @@ void Task_MotionDetection()
 	static int i = 0;
 	static bool CurrPresence, PrevPresence;
 
-	CurrPresence = digitalRead(PIN_PRESENCE_SENSOR);
+	CurrPresence = PresenceSensor.Read();
 	if( CurrPresence != PrevPresence )
 	{
 		Serial.print(i++);
@@ -232,20 +221,29 @@ void Task_MotionDetection()
 		PrevPresence = CurrPresence;
 		if( CurrPresence == HIGH )
 		{
-			Serial.println("Presence detected!");
-			digitalWrite(PIN_OUTDOOR_LIGHT, HIGH);
+			#if DEBUG == 1
+				Serial.println("Presence detected!");
+			#endif
+			lcd.PrintLine("Presence started!", 1);
+			OutdoorLight.On();
 		}
 		else
 		{
-			Serial.println("Presence ended!");
-			digitalWrite(PIN_OUTDOOR_LIGHT, LOW);
+			#if DEBUG == 1
+				Serial.println("Presence ended!");
+			#endif
+			OutdoorLight.Off();
+			lcd.PrintLine("Presence ended!", 1);
 		}
 	}
 }
 
 void Task_Garage()
 {
-	static unsigned long PrevStepTimestamp = 0;
+	if( !MotorInitialized)
+		return;
+
+	static unsigned long PrevStepTimestamp =  millis();
 	if( millis() - GarageMillisTimeout < 300 )
 	{
 		if( millis() - PrevStepTimestamp >= 2 )
@@ -269,7 +267,7 @@ ISR(TIMER3_OVF_vect)
 void loop()
 {
 	Task_IR();
-	//Task_MotionDetection();
+	Task_MotionDetection();
 	lcd.Update();
 }
 

@@ -23,7 +23,7 @@ typedef enum
 
 #define Vfb_DigitalWrite(pin, level)	digitalWrite(pin, level)
 #define Vfb_DigitalRead(pin)			digitalRead(pin)
-#define Vfb_DigitalToggle(pin)			digitalWrite(pin, !digitalRead(pin))
+#define Vfb_DigitalToggle(pin)			digitalWrite(pin, !digitalRead(pin) )
 #define Vfb_SetPinMode(pin, mode)		pinMode(pin, mode)
 
 #endif /* _HAL_H_ */
