@@ -4,6 +4,7 @@
 #include <LiquidCrystal.h>
 #include <TimerOne.h>
 #include <LED.h>
+#include <BasicLCD.h>
 
 #include "IR_Codes.h"
 #include "PinMap.h"
@@ -13,10 +14,7 @@
 using namespace Drivers;
 
 /* LCD config */
-LiquidCrystal lcd(PIN_LCD_RS, PIN_LCD_EN, PIN_LCD_D4, PIN_LCD_D5, PIN_LCD_D6, PIN_LCD_D7);
-/* LCD buffers - empty by default*/
-char LCD_Buffer_Line_0[16] = { ' ' };
-char LCD_Buffer_Line_1[16] = { ' ' };
+BasicLCD lcd(PIN_LCD_RS, PIN_LCD_EN, PIN_LCD_D4, PIN_LCD_D5, PIN_LCD_D6, PIN_LCD_D7);
 
 /* IR Receiver handlers */
 IRrecv irrecv(PIN_IR_RECEIVER);
@@ -29,7 +27,7 @@ X11Stepper motor(PIN_STEPPER_IN1, PIN_STEPPER_IN2, PIN_STEPPER_IN3, PIN_STEPPER_
 #define digitalToggle(pin)	digitalWrite(pin, !digitalRead(pin))
 
 /* Globals */
-bool MOTION_SENSOR_ENABLED = true;
+bool MOTION_SENSOR_ENABLED = false;
 
 /* Rooms status (on/off) */
 uint8_t RoomsStatusLights[8] = { 0 };
@@ -62,17 +60,14 @@ void setup()
 	irrecv.blink13(true);
 
 	/* Init LCD  - 16 rows, 2 columns */
-	lcd.begin(16, 2);
+	lcd.Init(16, 2);
 
 	/* Init serial for debugging */
 	Serial.begin(115200);
 
 	/* Init column 1 with motion detection */
-	lcd.clear();
-	lcd.setCursor(0, 0);
-	lcd.print("   WELCOME TO");
-	lcd.setCursor(0, 1);
-	lcd.print("  SMART HOUSE!");
+	lcd.PrintLine("   WELCOME TO", 0);
+	lcd.PrintLine("  SMART HOUSE!", 1);
 
 	/* Timer5 for uniform motor movement */
 	noInterrupts();
@@ -115,16 +110,16 @@ void onIrKeyRecv(unsigned long keyVal)
 	Serial.println(keyVal);
 #endif
 
-	if( keyVal == PHONE_IR_CODE_KEY_CH_PLUS || keyVal == RC_IR_CODE_KEY_CH_PLUS )
-	{
-		GarageMillisTimeout = millis();
-		motor.SetDirection(X11Stepper::DIRECTION::FORWARD);
-		return;
-	}
-	else if( keyVal == PHONE_IR_CODE_KEY_CH_MINUS || keyVal == RC_IR_CODE_KEY_CH_MINUS )
+	if( keyVal == PHONE_IR_CODE_KEY_PLUS || keyVal == RC_IR_CODE_KEY_PLUS )
 	{
 		GarageMillisTimeout = millis();
 		motor.SetDirection(X11Stepper::DIRECTION::BACKWARD);
+		return;
+	}
+	else if( keyVal == PHONE_IR_CODE_KEY_MINUS || keyVal == RC_IR_CODE_KEY_MINUS )
+	{
+		GarageMillisTimeout = millis();
+		motor.SetDirection(X11Stepper::DIRECTION::FORWARD);
 		return;
 	}
 
@@ -191,11 +186,21 @@ void onIrKeyRecv(unsigned long keyVal)
 	Serial.println(keyVal);
 #endif
 
-	memset(LCD_Buffer_Line_0, ' ', sizeof(LCD_Buffer_Line_0));
-	sprintf(LCD_Buffer_Line_0, "%s", RoomsStatusLights);
+	String RoomsStatusStr = "";
+	for( uint8_t i = 0; i < 8; i++)
+	{
+		if( RoomsStatusLights[i] == 0 )
+			RoomsStatusStr += "0";
+		else
+			RoomsStatusStr += "1";
+		RoomsStatusStr += " ";
+	}
+	lcd.PrintLine( RoomsStatusStr, 0);
 
-	memset(LCD_Buffer_Line_1, ' ', sizeof(LCD_Buffer_Line_1));
-	sprintf(LCD_Buffer_Line_1, "M_detector: %s", MOTION_SENSOR_ENABLED ? "ON" : "OFF");
+	if(MOTION_SENSOR_ENABLED == true)
+		lcd.PrintLine("M_detector: ON", 1);
+	else
+		lcd.PrintLine("M_detector: OFF", 1);
 }
 
 void Task_IR()
@@ -261,25 +266,10 @@ ISR(TIMER3_OVF_vect)
 	Task_Garage();
 }
 
-void Task_UpdateLcd()
-{
-	static unsigned long PrevUpdateTimestamp = 0;
-	if( millis() - PrevUpdateTimestamp > 50 ) /* 50 Hz frequency should be enough */
-	{
-		PrevUpdateTimestamp = millis();
-		/* Update LCD display every 50ms */
-		lcd.clear();
-		lcd.setCursor(0, 0);
-		lcd.write(LCD_Buffer_Line_0, sizeof(LCD_Buffer_Line_0));
-		lcd.setCursor(0, 1);
-		lcd.write(LCD_Buffer_Line_1, sizeof(LCD_Buffer_Line_1));
-	}
-}
-
 void loop()
 {
 	Task_IR();
-	Task_MotionDetection();
-	Task_UpdateLcd();
+	//Task_MotionDetection();
+	lcd.Update();
 }
 

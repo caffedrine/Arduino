@@ -36,7 +36,8 @@ void BasicLCD::Init(uint8_t cols, uint8_t lines)
 void BasicLCD::PrintLine(String str, uint8_t line)
 {
 	/* Fill with at least 8 blank lines */
-	str += "        ";
+	for(uint8_t i =0;  i< this->_Cols; i++)
+		str += " ";
 
 	if (str.length() > this->_Cols)
 	{
@@ -54,8 +55,8 @@ void BasicLCD::PrintLine(String str, uint8_t line)
 
 void BasicLCD::PrintLine(uint8_t *str, uint8_t len, uint8_t line)
 {
-	if (len > line)
-		len = line;
+	if (len > this->_Cols)
+		len = this->_Cols;
 
 	if (line >= this->_Lines)
 	{
@@ -71,7 +72,9 @@ void BasicLCD::PrintLine(uint8_t *str, uint8_t len, uint8_t line)
 	}
 
 	/* Fill with at least 8 blank lines */
-	res += "        ";
+	for(uint8_t i = 0;  i < this->_Cols; i++)
+		res += " ";
+
 	if (res.length() > this->_Cols)
 		res = res.substring(0, this->_Cols);
 
