@@ -23,9 +23,12 @@ namespace Drivers
 		void Toggle();
 		void Write(uint8_t LogicalLevel);
 		uint8_t Read();
+		uint16_t ReadAnalog();
+		uint8_t GetPinNo();
+		uint8_t GetPinMode();
 
 		virtual ~GpioBase();
-	private:
+		private:
 		uint8_t _PinNo = 0;
 		uint8_t _Mode = INPUT;
 	};

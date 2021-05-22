@@ -124,4 +124,40 @@ namespace Drivers
 		return Vfb_DigitalRead(this->_PinNo);
 	}
 
+	uint16_t GpioBase::ReadAnalog()
+	{
+		if(this->_PinNo <= 0 )
+		{
+			#if DRIVERS_DEBUG == 1
+				ERR_PRINT("[ERR][GpioBase] ReadAnalog(): Invalid pin number or not initialized: ");
+				ERR_PRINTLN(this->_PinNo);
+			#endif
+		}
+		return (uint16_t)Vfb_AnalogRead(this->_PinNo);
+	}
+
+	uint8_t GpioBase::GetPinNo()
+	{
+		if(this->_PinNo <= 0 )
+		{
+			#if DRIVERS_DEBUG == 1
+				ERR_PRINT("[ERR][GpioBase] GetPinNo(): Invalid pin number or not initialized: ");
+				ERR_PRINTLN(this->_PinNo);
+			#endif
+		}
+		return this->_PinNo;
+	}
+
+	uint8_t GpioBase::GetPinMode()
+	{
+		if(this->_PinNo <= 0 )
+		{
+			#if DRIVERS_DEBUG == 1
+				ERR_PRINT("[ERR][GpioBase] GetPinNo(): Invalid pin number or not initialized: ");
+				ERR_PRINTLN(this->_PinNo);
+			#endif
+		}
+		return this->_Mode;
+	}
+
 } /* namespace Drivers */
