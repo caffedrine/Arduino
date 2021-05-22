@@ -1,11 +1,10 @@
 *.swp
 .metadata
-*/.metadata
+**/.metadata
 */.swp
 /RemoteSystemsTempFiles
-*/core
-*/Release
-*/Release/*
+**/core
+**/Release
 */.settings
 */.project
 */.cproject
