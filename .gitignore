@@ -5,6 +5,7 @@
 /RemoteSystemsTempFiles
 */core
 */Release
+*/Release/*
 */.settings
 */.project
 */.cproject
@@ -27,4 +28,7 @@
 */build/
 */spec.d
 *~
+*.hex
+*.eep
+
 
