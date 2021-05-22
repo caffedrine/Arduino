@@ -29,6 +29,7 @@
 */spec.d
 *~
 *.hex
+*.o
 *.eep
 
 
