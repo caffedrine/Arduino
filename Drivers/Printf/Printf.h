@@ -8,16 +8,9 @@
 #ifndef PRINTF_H_
 #define PRINTF_H_
 
-namespace Drivers
-{
+#include <Arduino.h>
 
-	class Printf
-	{
-	public:
-		Printf();
-		virtual ~Printf();
-	};
-
-} /* namespace Drivers */
+void printf_init(HardwareSerial *SerialPort, uint32_t BaudRate);
+int printf(const char* fmt, ...);
 
 #endif /* PRINTF_H_ */
