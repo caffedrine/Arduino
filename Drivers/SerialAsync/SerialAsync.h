@@ -48,6 +48,7 @@ namespace Drivers
 				}
 			}
 		}
+
 		inline uint8_t BufferPop()
 		{
 			uint8_t result = this->buffer[this->bufferTail];

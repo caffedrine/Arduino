@@ -56,6 +56,26 @@ namespace Drivers
 					{
 						this->serial->write(this->BufferPop());
 					}
+
+					// Is there still availability after wrote all internal buffer bytes?
+					uint16_t remaining_availability_in_serial = SerialBufferAvailability - w_len;
+					if( remaining_availability_in_serial > 0 )
+					{
+						for( uint16_t i = 0; i < remaining_availability_in_serial; i++ )
+						{
+							this->serial->write( bytes[i] );
+						}
+
+						// Remaining bytes in request shall be append to circular buffer
+						if( bytes_length > remaining_availability_in_serial )
+						{
+							this->BufferPush(&bytes[remaining_availability_in_serial], bytes_length - remaining_availability_in_serial);
+						}
+					}
+					else // Serial buffer is full. Append remaining bytes to internal buffer
+					{
+						this->BufferPush(bytes, bytes_length);
+					}
 				}
 				else
 				{
@@ -93,6 +113,8 @@ namespace Drivers
 	        SerialBufferAvailability = this->serial->availableForWrite();
 
 			uint16_t write_len = (((SERIAL_ASYNC_STATIC_BUFFER_SIZE - InternalBufferAvailability) > SerialBufferAvailability) ? (SerialBufferAvailability) : (SERIAL_ASYNC_STATIC_BUFFER_SIZE - InternalBufferAvailability));
+
+			printf("Mainfunction write %d bytes", write_len);
 
 			// Loop through all bytes that needs to be send
 			for( uint16_t i = 0; i < write_len; i++ )
