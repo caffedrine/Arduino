@@ -11,7 +11,7 @@
 #include <Arduino.h>
 #include <Printf.h>
 
-#define SERIAL_ASYNC_STATIC_BUFFER_SIZE	3u
+#define SERIAL_ASYNC_STATIC_BUFFER_SIZE	1024u
 
 namespace Drivers
 {
@@ -42,7 +42,7 @@ namespace Drivers
 			for( uint16_t i = 0; i < bytesLen; i++ )
 			{
 				this->buffer[this->bufferHead++] = bytes[i];
-				if( this->bufferHead >=  SERIAL_ASYNC_STATIC_BUFFER_SIZE - 1)
+				if( this->bufferHead >=  SERIAL_ASYNC_STATIC_BUFFER_SIZE)
 				{
 					this->bufferHead = 0;
 				}
@@ -51,10 +51,8 @@ namespace Drivers
 
 		inline uint8_t BufferPop()
 		{
-			uint8_t result = this->buffer[this->bufferTail];
-
-			this->bufferTail += 1;
-			if( this->bufferTail > SERIAL_ASYNC_STATIC_BUFFER_SIZE - 1 )
+			uint8_t result = this->buffer[this->bufferTail++];
+			if( this->bufferTail >= SERIAL_ASYNC_STATIC_BUFFER_SIZE )
 			{
 				this->bufferTail = 0;
 			}

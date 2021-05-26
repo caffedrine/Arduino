@@ -7,6 +7,10 @@
 
 #include "SerialAsync.h"
 
+#ifndef SERIAL_ASYNC_DEBUG
+	#define SERIAL_ASYNC_DEBUG	0
+#endif
+
 namespace Drivers
 {
 	SerialAsync::SerialAsync(HardwareSerial *serialChannel, uint32_t BaudRate)
@@ -31,11 +35,12 @@ namespace Drivers
 		if( bytes_length > (InternalBufferAvailability + SerialBufferAvailability) )
 			return 0;
 
-
-        printf("  -> Internal buffer: %d bytes\n", InternalBufferAvailability);
-		printf("  -> Serial buffer  : %d bytes\n", SerialBufferAvailability);
+		#if SERIAL_ASYNC_DEBUG
+		printf("\nWrite %d bytes\n", bytes_length);
+		printf("  -> Internal buffer availability: %d bytes\n", InternalBufferAvailability);
+		printf("  -> Serial buffer availability  : %d bytes\n", SerialBufferAvailability);
 		printf("  -> Total capacity : %d bytes\n", InternalBufferAvailability + SerialBufferAvailability);
-
+		#endif
 		// If size fits in available serial buffer and internal buffer is empty then just send it serial buffer
 		if( (InternalBufferAvailability == SERIAL_ASYNC_STATIC_BUFFER_SIZE) && (SerialBufferAvailability >= bytes_length))
 		{
@@ -49,6 +54,11 @@ namespace Drivers
 				// Shift to serial the bytes available internally
 				if( InternalBufferAvailability < SERIAL_ASYNC_STATIC_BUFFER_SIZE)
 				{
+					// At this point, there is available space inside serial buffer
+					// and there are as well bytes into internal serial
+					// Shift out bytes from internal buffer to serial and place remaining bytes into
+					// correct buffer or both if the case
+
 					// Write data from internal buffer to serial
 					uint16_t w_len = (((SERIAL_ASYNC_STATIC_BUFFER_SIZE - InternalBufferAvailability) > SerialBufferAvailability) ? (SerialBufferAvailability) : (SERIAL_ASYNC_STATIC_BUFFER_SIZE - InternalBufferAvailability));
 					// Loop through all bytes that needs to be send
@@ -56,47 +66,59 @@ namespace Drivers
 					{
 						this->serial->write(this->BufferPop());
 					}
+					#if SERIAL_ASYNC_DEBUG
+					printf("Transfer %d bytes from internal buffer to serial buffer\n", w_len);
+					#endif
 
-					// Is there still availability after wrote all internal buffer bytes?
-					uint16_t remaining_availability_in_serial = SerialBufferAvailability - w_len;
-					if( remaining_availability_in_serial > 0 )
-					{
-						for( uint16_t i = 0; i < remaining_availability_in_serial; i++ )
-						{
-							this->serial->write( bytes[i] );
-						}
+					// Read again the lengths of the buffers
+			        InternalBufferAvailability = this->BufferAvailability();
+			        SerialBufferAvailability = this->serial->availableForWrite();
 
-						// Remaining bytes in request shall be append to circular buffer
-						if( bytes_length > remaining_availability_in_serial )
-						{
-							this->BufferPush(&bytes[remaining_availability_in_serial], bytes_length - remaining_availability_in_serial);
-						}
-					}
+			        // If there is still available space in serial buffer shift out some of the bytes from request
+			        if( SerialBufferAvailability > 0 )
+			        {
+						// Internal buffer is empty. Write as much possible into serial and push the rest into internal buffer
+						uint16_t w_len = ((bytes_length > SerialBufferAvailability) ? (SerialBufferAvailability) : (bytes_length));
+						this->serial->write(bytes, w_len);
+
+						// push remaining bytes to internal buffer
+						uint16_t remaining_bytes = bytes_length - w_len;
+						this->BufferPush(&bytes[w_len], remaining_bytes);
+
+						#if SERIAL_ASYNC_DEBUG
+						printf("Pushed %d bytes into serial buffer and %d bytes into internal buffer\n", w_len, remaining_bytes);
+						printf("Internal buffer queued bytes %d\n", SERIAL_ASYNC_STATIC_BUFFER_SIZE - this->BufferAvailability());
+						#endif
+			        }
 					else // Serial buffer is full. Append remaining bytes to internal buffer
 					{
 						this->BufferPush(bytes, bytes_length);
+						#if SERIAL_ASYNC_DEBUG
+						printf("Pushed %d bytes into internal buffer\n", bytes_length);
+						#endif
 					}
 				}
 				else
 				{
 					// Internal buffer is empty. Write as much possible into serial and push the rest into internal buffer
 					uint16_t w_len = ((bytes_length > SerialBufferAvailability) ? (SerialBufferAvailability) : (bytes_length));
-					for( uint16_t i = 0; i < w_len; i++ )
-					{
-						this->serial->write(bytes[i]);
-					}
+					this->serial->write(bytes, w_len);
 
 					// push remaining bytes to internal buffer
-					uint16_t remaining_bytes = bytes_length = w_len;
-					for( uint16_t i = 0; i < remaining_bytes; i++ )
-					{
-						this->BufferPush(&bytes[w_len + i], remaining_bytes);
-					}
+					uint16_t remaining_bytes = bytes_length - w_len;
+					this->BufferPush(&bytes[w_len], remaining_bytes);
+					#if SERIAL_ASYNC_DEBUG
+					printf("Pushed %d bytes into serial buffer and %d bytes into internal buffer\n", w_len, remaining_bytes);
+					printf("Internal buffer queued bytes %d\n", SERIAL_ASYNC_STATIC_BUFFER_SIZE - this->BufferAvailability());
+					#endif
 				}
 			}
 			else // No space in serial buffer. Write everything in internal static buffer
 			{
 				this->BufferPush(bytes, bytes_length);
+				#if SERIAL_ASYNC_DEBUG
+				printf("Pushed %d bytes into internal buffer\n", bytes_length);
+				#endif
 			}
 		}
 
@@ -113,14 +135,14 @@ namespace Drivers
 	        SerialBufferAvailability = this->serial->availableForWrite();
 
 			uint16_t write_len = (((SERIAL_ASYNC_STATIC_BUFFER_SIZE - InternalBufferAvailability) > SerialBufferAvailability) ? (SerialBufferAvailability) : (SERIAL_ASYNC_STATIC_BUFFER_SIZE - InternalBufferAvailability));
-
-			printf("Mainfunction write %d bytes", write_len);
-
 			// Loop through all bytes that needs to be send
 			for( uint16_t i = 0; i < write_len; i++ )
 			{
 				this->serial->write(this->BufferPop());
 			}
+			#if SERIAL_ASYNC_DEBUG
+			printf("Mainfunction write %d bytes\n", write_len);
+			#endif
 		}
 	}
 
