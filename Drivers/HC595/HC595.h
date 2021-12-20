@@ -11,11 +11,25 @@
 #include "HAL.h"
 #include "GpioBase.h"
 
-#define BIG_ENDIAN				1
-#define SMALL_ENDIAN			0
+#ifndef HC595_DEBUG_MESSAGES
+	#define HC595_DEBUG_MESSAGES	1
+#endif
 
-#define HC595_BIT_SHIFT_ORDER	LSBFIRST
-#define HC595_ENDIANESS			SMALL_ENDIAN
+#ifndef HC595_DEBUG_ENABLED
+	#define HC595_DEBUG_ENABLED		1
+#endif
+
+#define HC595_EXTENDED_FUNCTIONS
+
+#define HC595_BIG_ENDIAN			1
+#define HC595_SMALL_ENDIAN			0
+
+#ifndef HC595_BIT_SHIFT_ORDER
+	#define HC595_BIT_SHIFT_ORDER	LSBFIRST
+#endif
+#ifndef HC595_ENDIANESS
+	#define HC595_ENDIANESS			HC595_BIG_ENDIAN
+#endif
 
 namespace Drivers
 {
@@ -42,22 +56,30 @@ namespace Drivers
 		void ToggleAll();
 		void WriteRaw(uint8_t *Data, uint8_t len);
 
-		void SetBit(HC595Pin bit, uint8_t RegIdx = 0);
-		void ClearBit(HC595Pin bit, uint8_t RegIdx = 0);
-		void ToggleBit(HC595Pin bit, uint8_t RegIdx = 0);
-		void WriteBit(HC595Pin bit, uint8_t value, uint8_t RegIdx = 0);
+		void SetBit(uint8_t bit, uint8_t RegIdx = 0);
+		void ClearBit(uint8_t bit, uint8_t RegIdx = 0);
+		void ToggleBit(uint8_t bit, uint8_t RegIdx = 0);
+		void WriteBit(uint8_t bit, uint8_t value, uint8_t RegIdx = 0);
 
 		void WriteByte(uint8_t Byte, uint8_t RegIdx = 0);
 		void ToggleByte(uint8_t RegIdx = 0);
 		void ClearByte(uint8_t RegIdx = 0);
 		void SetByte(uint8_t RegIdx = 0);
 
+#ifdef HC595_EXTENDED_FUNCTIONS
+		void SetBitNo(int bit_number);
+		void ClearBitNo(int bit_number);
 
+		void SetFirstNBits(uint8_t bits_number);
+		void ClearFirstNBits(uint8_t bits_number);
+		void SetLastNBits(uint8_t bits_number);
+		void ClearLastNBits(uint8_t bits_number);
+#endif
 
-		void Update()
+		void MainFunction()
 		{
 			/* Loop through all shift registers */
-			#if (HC595_ENDIANESS == BIG_ENDIAN)
+			#if (HC595_ENDIANESS == HC595_BIG_ENDIAN)
 				for(uint8_t reg = 0; reg < this->_RegsNo; reg++){
 			#else
 				static uint8_t reg;

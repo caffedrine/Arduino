@@ -14,6 +14,8 @@
 
 #define ERR_PRINTLN(arg)	(Serial.println(arg))
 #define ERR_PRINT(arg)		(Serial.print(arg))
+#define DBG_PRINT(arg)		(Serial.print(arg))
+#define DBG_PRINTLN(arg)	(Serial.println(arg))
 
 typedef enum
 {
