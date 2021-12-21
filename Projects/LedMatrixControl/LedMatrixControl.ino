@@ -13,16 +13,13 @@
 #define CATHODS_NO		8u
 
 Drivers::LED led(13u);
-//Drivers::LedMatrixDriver matrix(CATHODS_NO, ANODS_NO, PIN_REG_CLK, PIN_REG_DATA, PIN_REG_LATCH);
-
-Drivers::HC595 reg(PIN_REG_CLK, PIN_REG_DATA, PIN_REG_LATCH, 2);
+Drivers::LedMatrixDriver matrix(CATHODS_NO, ANODS_NO, PIN_REG_CLK, PIN_REG_DATA, PIN_REG_LATCH);
 
 void setup()
 {
 	Serial.begin(9600);
 	Serial.println("START");
-	//matrix.ClearAll();
-	reg.ClearAll();
+	matrix.ClearAll();
 }
 
 void ledBlink()
@@ -55,45 +52,20 @@ void ledBlink()
 void updateDisplay()
 {
 	static uint32_t prevMillis = 0;
-	static uint8_t state = 0;
 
-//	if( millis() - prevMillis >= 1000 )
-//	{
-//		prevMillis = millis();
-//
-//		reg.ToggleAll();
-//
-//		//matrix.IncrementMatrix();
-//	}
-
-	if( state == 0 )
+	if( millis() - prevMillis >= 200 )
 	{
-		if( millis() - prevMillis >= 500 )
-		{
-			prevMillis = millis();
-			reg.SetLastNBits(7);
-			state = 1;
-		}
+		prevMillis = millis();
+		matrix.IncrementMatrix();
 	}
-	else if( state == 1 )
-	{
-		if( millis() - prevMillis >= 200 )
-		{
-			prevMillis = millis();
-			reg.ClearLastNBits(7);
-			state = 0;
-		}
-	}
-
 }
 
 void loop()
 {
 	updateDisplay();
-	//matrix.MainFunction();
+	matrix.MainFunction();
 
 	ledBlink();
-	reg.MainFunction();
 }
 
 

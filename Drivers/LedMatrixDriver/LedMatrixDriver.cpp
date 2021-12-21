@@ -63,23 +63,22 @@ namespace Drivers
 	void LedMatrixDriver::MainFunction()
 	{
 		// Remove all current values from shift register
-//		this->SetAllAnodsStates(LOW);
-//		this->SetAllCathodsState(LOW);
-		this->_HC595->ClearAll();
+		this->SetAllAnodsStates(LOW);
+		this->SetAllCathodsState(HIGH);
 
-		//this->SetSingleAnodState(this->_CursorX, HIGH);
-		//this->_HC595->SetBit(Drivers::HC595Pin::Q_A, 0);
-		if( this->_CursorX >= this->_nAnods - 1 )
+		this->SetSingleAnodState(this->_CursorX++, HIGH);
+		if( this->_CursorX >= this->_nAnods )
 			this->_CursorX = 0;
 
-//		this->SetSingleCathodState(this->_CursorY, LOW);
+		this->SetSingleCathodState(0, LOW);
+		this->SetSingleCathodState(1, LOW);
+//		this->SetSingleCathodState(this->_CursorY++, LOW);
 //		if( this->_CursorY >= this->_nCathods - 1 )
 //			this->_CursorY = 0;
 
 		// Trigger shift registers main function to send data to output
 		this->_HC595->MainFunction();
 
-		delay(150);
 	}
 
 	void LedMatrixDriver::SetAllAnodsStates(uint8_t state)
