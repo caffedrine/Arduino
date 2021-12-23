@@ -17,27 +17,55 @@ namespace Drivers
 	class LedMatrixDriver
 	{
 	public:
+		// Maximum matrix sizes
+		static const uint8_t MATRIX_MAX_X_ELEMENTS = 12;
+		static const uint8_t MATRIX_MAX_Y_ELEMENTS = 12;
+
 		LedMatrixDriver(uint8_t nCathods, uint8_t nAnods, uint8_t ClockPin, uint8_t DataPin, uint8_t LatchPin);
 		virtual ~LedMatrixDriver();
 
 		void SetAll();
 		void ClearAll();
 
-		void SetBit(uint8_t x_cathod, uint8_t y_anod);
-		void ClearBit(uint8_t c_cathod, uint8_t y_anod);
+		void SetAllX(uint8_t y);
+		void ClearAllX(uint8_t y);
+		void SetAllY(int8_t x);
+		void ClearAllY(uint8_t x);
+		void SetBit(uint8_t x, uint8_t y);
+		void ClearBit(uint8_t x, uint8_t y);
 
-		void IncrementMatrix();
+		void LoadFrame(uint8_t matrix[MATRIX_MAX_X_ELEMENTS][MATRIX_MAX_Y_ELEMENTS])
+		{
+			for( int i = 0; i < this->_nElementsX; i++ )
+			{
+				for( int j = 0; j < this->_nElementsY; j++ )
+				{
+					this->_Matrix[i][j] = matrix[j][i];
+				}
+			}
+
+			this->PrintMatrix();
+		}
+
+		void TextMatrixPositions();
+		void PrintMatrix();
+
+		void AllOff();
+		void AllOn();
 
 		void MainFunction();
 
 	private:
-		uint8_t _nAnods, _nCathods;
+		uint8_t _nElementsY, _nElementsX;
 		/* Buffer to store current values */
-		uint8_t **_Matrix;
+		int _Matrix[MATRIX_MAX_X_ELEMENTS][MATRIX_MAX_Y_ELEMENTS];
 		/* Shift registers used to output the data */
 		HC595 *_HC595;
+		uint8_t _RegsBuffer[3] = {0};
 		/* Matrix writing cursor */
 		uint8_t _CursorX = 0, _CursorY = 0;
+
+		void CalcNextPosition();
 
 		void SetAllAnodsStates(uint8_t state);
 		void SetAllCathodsState(uint8_t state);

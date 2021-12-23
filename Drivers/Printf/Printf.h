@@ -42,6 +42,14 @@ extern "C"
 {
 #endif
 
+#ifndef ASYNC_PRINTF
+	#define ASYNC_PRINTF	0
+#endif
+
+#if ASYNC_PRINTF
+	void printf_MainFunction();
+#endif
+
 /**
  * Provide serial channel to be used by printf
  */

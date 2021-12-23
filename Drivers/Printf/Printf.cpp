@@ -124,15 +124,23 @@ typedef struct
 	void *arg;
 } out_fct_wrap_type;
 
+#if ASYNC_PRINTF
+	#include <SerialAsync.h>
 
-static HardwareSerial *serial;
+	static Drivers::SerialAsync *serial;
+#else
+	static HardwareSerial *serial;
+#endif
 
 void printf_init(HardwareSerial *SerialPort, uint32_t BaudRate)
 {
-	serial = SerialPort;
-
-	// Init serial
-	serial->begin(BaudRate);
+	#if ASYNC_PRINTF
+		serial = new Drivers::SerialAsync(SerialPort, BaudRate);
+	#else
+		serial = SerialPort;
+		// Init serial
+		serial->begin(BaudRate);
+	#endif
 }
 
 
@@ -140,9 +148,20 @@ void _putchar(char character)
 {
 	if( serial )
 	{
-		serial->write(character);
+		#if ASYNC_PRINTF
+			serial->WriteBytes((uint8_t *)&character, 1);
+		#else
+			serial->write(character);
+		#endif
 	}
 }
+
+#if ASYNC_PRINTF
+void printf_MainFunction()
+{
+	serial->MainFunction();
+}
+#endif
 
 // internal buffer output
 static inline void _out_buffer(char character, void *buffer, size_t idx, size_t maxlen)

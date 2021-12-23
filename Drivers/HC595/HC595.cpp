@@ -367,7 +367,6 @@ namespace Drivers
 			this->ClearBitNo(i);
 		}
 	}
-
 #endif
 
 } /* namespace Drivers */
