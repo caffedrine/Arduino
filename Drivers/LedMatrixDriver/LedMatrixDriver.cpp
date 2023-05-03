@@ -173,13 +173,13 @@ namespace Drivers
 		}
 	}
 
-	void LedMatrixDriver::AllOff()
+	void LedMatrixDriver::Hc595AllOff()
 	{
 		static uint8_t regs[3] = {0b00000000, 0b00001111, 0b11111111};
 		this->_HC595->WriteRaw(regs, sizeof(regs));
 	}
 
-	void LedMatrixDriver::AllOn()
+	void LedMatrixDriver::Hc595AllOn()
 	{
 		static uint8_t regs[3] = {0b11111111, 0b00000000, 0b00000000};
 		this->_HC595->WriteRaw(regs, sizeof(regs));

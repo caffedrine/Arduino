@@ -28,7 +28,7 @@
 	#define HC595_BIT_SHIFT_ORDER	LSBFIRST
 #endif
 #ifndef HC595_ENDIANESS
-	#define HC595_ENDIANESS			HC595_BIG_ENDIAN
+	#define HC595_ENDIANESS			HC595_SMALL_ENDIAN
 #endif
 
 namespace Drivers

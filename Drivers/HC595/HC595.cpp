@@ -36,7 +36,6 @@ namespace Drivers
 	}
 
 	void HC595::ToggleAll()
-
 	{
 		for(uint8_t i = 0; i < this->_RegsNo; i++)
 		{

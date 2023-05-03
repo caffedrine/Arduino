@@ -44,14 +44,11 @@ namespace Drivers
 				}
 			}
 
-			this->PrintMatrix();
+			//this->PrintMatrix();
 		}
 
 		void TextMatrixPositions();
 		void PrintMatrix();
-
-		void AllOff();
-		void AllOn();
 
 		void MainFunction();
 
@@ -71,6 +68,9 @@ namespace Drivers
 		void SetAllCathodsState(uint8_t state);
 		void SetSingleAnodState(uint8_t anod_no, uint8_t state);
 		void SetSingleCathodState(uint8_t cathod_no, uint8_t state);
+
+		void Hc595AllOff();
+		void Hc595AllOn();
 	};
 
 } /* namespace Drivers */
