@@ -16,6 +16,7 @@
 *.ino.cpp
 *.metadata
 *.swp
+**/spec.d
 
 */Visual Micro
 */*.sdf
